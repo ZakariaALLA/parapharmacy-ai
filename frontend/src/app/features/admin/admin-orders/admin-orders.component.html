@@ -1,0 +1,188 @@
+<div class="admin-orders fade-in">
+  <div class="page-header">
+    <div class="header-titles">
+      <h1 class="gradient-text">Gestion des Commandes</h1>
+      <p>Suivi et traitement &bull; {{ totalElements }} commande{{ totalElements !== 1 ? 's' : '' }} globale{{ totalElements !== 1 ? 's' : '' }}</p>
+    </div>
+  </div>
+
+  <!-- Order Detail Drawer / Modal -->
+  @if (selectedOrder) {
+    <div class="modal-overlay" (click)="selectedOrder = null">
+      <div class="modal glass-modal slide-in" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h2>Détails de la Commande <span class="order-ref">#{{ selectedOrder.id }}</span></h2>
+            <span class="status-badge" [class]="'badge-' + getStatusClass(selectedOrder.status)">
+              {{ getStatusLabel(selectedOrder.status) }}
+            </span>
+          </div>
+          <button class="close-btn" (click)="selectedOrder = null">
+            <span class="material-icons-outlined">close</span>
+          </button>
+        </div>
+
+        <div class="modal-body custom-scrollbar">
+          <!-- Client Info -->
+          <div class="info-section">
+            <h3 class="section-title"><span class="material-icons-outlined">receipt_long</span> Informations Client</h3>
+            <div class="order-info-grid">
+              <div class="info-card">
+                <span class="material-icons-outlined info-icon">person</span>
+                <div class="info-content">
+                  <span class="info-label">Client</span>
+                  <span class="info-value">{{ selectedOrder.customerName }}</span>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="material-icons-outlined info-icon">phone</span>
+                <div class="info-content">
+                  <span class="info-label">Téléphone</span>
+                  <span class="info-value">{{ selectedOrder.phoneNumber }}</span>
+                </div>
+              </div>
+              <div class="info-card">
+                <span class="material-icons-outlined info-icon">location_city</span>
+                <div class="info-content">
+                  <span class="info-label">Ville de livraison</span>
+                  <span class="info-value">{{ selectedOrder.city }}</span>
+                </div>
+              </div>
+              <div class="info-card expanded">
+                <span class="material-icons-outlined info-icon">home</span>
+                <div class="info-content">
+                  <span class="info-label">Adresse Complète</span>
+                  <span class="info-value">{{ selectedOrder.address }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items List -->
+          <div class="info-section">
+            <h3 class="section-title">
+              <span class="material-icons-outlined">shopping_basket</span> 
+              Articles ({{ selectedOrder.items?.length || 0 }})
+            </h3>
+            <div class="order-items-list">
+              @for (item of selectedOrder.items; track item.id) {
+                <div class="order-item-card">
+                  <img [src]="item.productImage || 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=80'" [alt]="item.productTitle">
+                  <div class="item-info">
+                    <span class="item-name">{{ item.productTitle }}</span>
+                    <span class="item-meta">Qté: {{ item.quantity }} &times; {{ item.unitPrice | number:'1.2-2' }} MAD</span>
+                  </div>
+                  <div class="item-total">
+                    <span class="price-val">{{ item.quantity * item.unitPrice | number:'1.2-2' }}</span>
+                    <span class="currency">MAD</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Total Calculation -->
+          <div class="order-total-banner">
+            <span class="total-label">Général Total</span>
+            <span class="total-val">{{ selectedOrder.totalPrice | number:'1.2-2' }} <small>MAD</small></span>
+          </div>
+
+          <!-- Action / Status Update -->
+          <div class="status-update-section">
+            <label>Mise à jour de l'état :</label>
+            <div class="status-btns">
+              @for (s of statuses; track s.value) {
+                <button
+                  class="status-pill"
+                  [class]="s.class"
+                  [class.active]="selectedOrder.status === s.value"
+                  (click)="updateStatus(selectedOrder.id, s.value)"
+                >
+                  <span class="material-icons-outlined check-icon" *ngIf="selectedOrder.status === s.value">check_circle</span>
+                  {{ s.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Orders Data Table -->
+  <div class="table-card glass-card slide-up-delayed">
+    <div class="table-container custom-scrollbar">
+      @if (orders.length === 0) {
+        <div class="empty-state">
+          <span class="material-icons-outlined empty-icon">inbox</span>
+          <p>La liste de commandes est vide.</p>
+        </div>
+      } @else {
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>Réf</th>
+              <th>Date</th>
+              <th>Client</th>
+              <th>Localisation</th>
+              <th>Montant Total</th>
+              <th>État Actuel</th>
+              <th class="actions-th">Fiche</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of orders; track order.id) {
+              <tr class="table-row-hover">
+                <td class="order-id-cell">#{{ order.id }}</td>
+                <td>
+                  <div class="date-cell">
+                    <span class="material-icons-outlined calendar-icon">calendar_today</span>
+                    {{ order.createdAt | date:'dd/MM/yy HH:mm' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="client-cell">
+                    <div class="avatar">{{ order.customerName.charAt(0) | uppercase }}</div>
+                    <div class="client-titles">
+                      <span class="client-name">{{ order.customerName }}</span>
+                      <span class="client-phone">{{ order.phoneNumber }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="city-pill"><span class="material-icons-outlined pin">place</span> {{ order.city }}</span>
+                </td>
+                <td class="price-cell">{{ order.totalPrice | number:'1.2-2' }} <small>MAD</small></td>
+                <td>
+                  <span class="status-badge" [class]="'badge-' + getStatusClass(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn-outline-sm" (click)="viewOrder(order.id)">
+                    <span class="material-icons-outlined">visibility</span> Consulter
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="table-pagination">
+        <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+          <span class="material-icons-outlined">chevron_left</span> Précédent
+        </button>
+        <div class="page-info">
+          Page <span class="current">{{ currentPage + 1 }}</span> sur {{ totalPages }}
+        </div>
+        <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+          Suivant <span class="material-icons-outlined">chevron_right</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

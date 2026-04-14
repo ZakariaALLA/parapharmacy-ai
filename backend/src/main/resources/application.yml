@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: parapharma-backend
+
+  profiles:
+    active: dev
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
+---
+# Development profile (H2)
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:file:./data/parapharma;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ParaPharmaMarocSecretKeyForJWTTokenGeneration2024MustBeLongEnoughForHS512
+    expiration-ms: 86400000  # 24 hours
+
+  upload:
+    dir: ./uploads/images
+
+---
+# Docker profile (PostgreSQL)
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:db}:${DB_PORT:5432}/${DB_NAME:parapharma}
+    username: ${DB_USERNAME:parapharma}
+    password: ${DB_PASSWORD:parapharma}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:ParaPharmaMarocSecretKeyForJWTTokenGeneration2024MustBeLongEnoughForHS512}
+    expiration-ms: ${JWT_EXPIRATION:86400000}
+
+  upload:
+    dir: /app/uploads/images
