@@ -1,0 +1,140 @@
+<div class="dashboard-container">
+  <div class="page-header slide-up">
+    <div class="header-titles">
+      <h1>Tableau de Bord</h1>
+      <p>Bienvenue dans votre espace d'administration de la Parapharmacie.</p>
+    </div>
+  </div>
+
+  @if (stats) {
+    <div class="kpi-grid slide-up-delayed">
+      <div class="kpi-card glass-card">
+        <div class="kpi-icon-wrapper orders">
+          <span class="material-icons-outlined">shopping_cart</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Commandes</span>
+          <span class="kpi-value">{{ stats.totalOrders }}</span>
+        </div>
+      </div>
+      
+      <div class="kpi-card glass-card">
+        <div class="kpi-icon-wrapper revenue">
+          <span class="material-icons-outlined">account_balance_wallet</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Revenus</span>
+          <span class="kpi-value">{{ stats.totalRevenue | number:'1.0-2' }} <small>MAD</small></span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card">
+        <div class="kpi-icon-wrapper products">
+          <span class="material-icons-outlined">inventory_2</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Produits</span>
+          <span class="kpi-value">{{ stats.totalProducts }}</span>
+        </div>
+      </div>
+
+      <div class="kpi-card glass-card">
+        <div class="kpi-icon-wrapper users">
+          <span class="material-icons-outlined">group</span>
+        </div>
+        <div class="kpi-content">
+          <span class="kpi-label">Clients</span>
+          <span class="kpi-value">{{ stats.totalUsers }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid slide-up-delayed">
+      <!-- Left Column: Chart and Mini Stats -->
+      <div class="charts-column">
+        <!-- Chart Card -->
+        <div class="card glass-card chart-card">
+          <div class="card-header">
+            <h3>Répartition des Commandes</h3>
+            <span class="icon-accent material-icons-outlined">pie_chart</span>
+          </div>
+          <div class="chart-container">
+            <canvas #statusChart></canvas>
+          </div>
+        </div>
+
+        <!-- Mini Stats below chart -->
+        <div class="mini-kpi-grid">
+          <div class="mini-kpi danger-outline">
+            <div class="mk-icon"><span class="material-icons-outlined">warning</span></div>
+            <div class="mk-info">
+              <span class="mk-val">{{ stats.lowStockProducts }}</span>
+              <span class="mk-label">Stock Faible</span>
+            </div>
+          </div>
+          <div class="mini-kpi warning-outline">
+            <div class="mk-icon"><span class="material-icons-outlined">hourglass_empty</span></div>
+            <div class="mk-info">
+              <span class="mk-val">{{ stats.pendingOrders }}</span>
+              <span class="mk-label">En Attente</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Recent Orders -->
+      <div class="card glass-card orders-card">
+        <div class="card-header border-bottom">
+          <h3>Dernières Commandes</h3>
+          <a routerLink="/admin/commandes" class="btn-text">
+            Voir tout <span class="material-icons-outlined">arrow_forward</span>
+          </a>
+        </div>
+        
+        <div class="table-container">
+          @if (stats.recentOrders.length === 0) {
+            <div class="empty-state">
+              <span class="material-icons-outlined empty-icon">inbox</span>
+              <p>Aucune commande récente.</p>
+            </div>
+          } @else {
+            <table class="modern-table">
+              <thead>
+                <tr>
+                  <th>Réf</th>
+                  <th>Client</th>
+                  <th>Montant</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of stats.recentOrders.slice(0, 6); track order.id) {
+                  <tr>
+                    <td class="font-medium text-main">#{{ order.id }}</td>
+                    <td>
+                      <div class="client-cell">
+                        <div class="avatar-sm">{{ order.customerName.charAt(0) | uppercase }}</div>
+                        <span>{{ order.customerName }}</span>
+                      </div>
+                    </td>
+                    <td class="font-semibold">{{ order.totalPrice | number:'1.2-2' }} DH</td>
+                    <td>
+                      <span class="status-badge" [class]="'badge-' + getStatusClass(order.status)">
+                        {{ getStatusLabel(order.status) }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="loader-container">
+      <div class="spinner"></div>
+      <p>Initialisation du tableau de bord...</p>
+    </div>
+  }
+</div>

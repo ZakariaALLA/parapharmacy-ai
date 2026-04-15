@@ -158,7 +158,7 @@ import { CartService, CartItem } from '../../core/services/cart.service';
   `]
 })
 export class CartComponent {
-  constructor(public cart: CartService) {}
+  constructor(public cart: CartService) { }
 
   updateQty(item: CartItem, qty: number): void {
     this.cart.updateQuantity(item.productId, qty);
