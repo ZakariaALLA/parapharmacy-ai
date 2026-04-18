@@ -200,11 +200,13 @@ import { AuthService } from '../../../core/services/auth.service';
     }
 
     .admin-main {
-      margin-left: var(--sidebar-width);
-      padding: 40px;
+      grid-column: 2;
+      padding: 32px;
       /* Subtle radial gradient to make standard content area look deep */
       background: radial-gradient(circle at top right, #ffffff, #f8fafc);
       min-height: 100vh;
+      min-width: 0;
+      overflow-x: hidden;
     }
 
     @media (max-width: 1024px) {
