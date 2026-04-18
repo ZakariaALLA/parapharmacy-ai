@@ -1,0 +1,71 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-col brand-col">
+        <div class="footer-logo">
+          <span class="logo-icon">💊</span>
+          <div>
+            <div class="logo-name">ParaPharma</div>
+            <div class="logo-sub">Maroc</div>
+          </div>
+        </div>
+        <p class="footer-desc">
+          Votre parapharmacie en ligne de confiance au Maroc.
+          Des produits authentiques, des prix compétitifs et
+          une livraison partout au Maroc.
+        </p>
+        <div class="footer-badge">
+          <span class="material-icons-outlined">verified</span>
+          Produits 100% Authentiques
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div class="footer-col">
+        <h4>Catégories</h4>
+        <a routerLink="/produits" [queryParams]="{categoryId: 1}">Dermo-Cosmétiques</a>
+        <a routerLink="/produits" [queryParams]="{categoryId: 2}">Compléments Alimentaires</a>
+        <a routerLink="/produits" [queryParams]="{categoryId: 3}">Hygiène</a>
+        <a routerLink="/produits" [queryParams]="{categoryId: 4}">Soins Bébé</a>
+        <a routerLink="/produits" [queryParams]="{categoryId: 5}">Soins de la Peau</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Informations</h4>
+        <a href="#">À Propos</a>
+        <a href="#">Livraison &amp; Retours</a>
+        <a href="#">Conditions Générales</a>
+        <a href="#">Politique de Confidentialité</a>
+        <a href="#">FAQ</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <div class="contact-item">
+          <span class="material-icons-outlined">email</span>
+          contact&#64;parapharma.ma
+        </div>
+        <div class="contact-item">
+          <span class="material-icons-outlined">phone</span>
+          +212 5XX-XXXXXX
+        </div>
+        <div class="contact-item">
+          <span class="material-icons-outlined">location_on</span>
+          Casablanca, Maroc
+        </div>
+        <div class="payment-info">
+          <span class="material-icons-outlined">local_shipping</span>
+          <div>
+            <strong>Paiement à la livraison</strong>
+            <small>Partout au Maroc</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} ParaPharma Maroc. Tous droits réservés.</p>
+    </div>
+  </div>
+</footer>

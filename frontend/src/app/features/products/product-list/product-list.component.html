@@ -1,0 +1,156 @@
+<div class="catalog-page">
+  <div class="container">
+    <div class="catalog-header">
+      <h1>{{ pageTitle }}</h1>
+      <p>{{ totalElements }} produit{{ totalElements > 1 ? 's' : '' }} trouvé{{ totalElements > 1 ? 's' : '' }}</p>
+    </div>
+
+    <div class="catalog-layout">
+      <!-- Filters Sidebar -->
+      <aside class="filters-sidebar" [class.open]="filtersOpen">
+        <div class="filters-header">
+          <h3>Filtres</h3>
+          <button class="filters-close" (click)="filtersOpen = false">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="filter-group">
+          <h4>Catégorie</h4>
+          @for (cat of categories; track cat.id) {
+            <label class="filter-option">
+              <input type="radio" name="category" [value]="cat.id"
+                [checked]="filter.categoryId === cat.id"
+                (change)="filter.categoryId = cat.id; applyFilters()">
+              <span>{{ cat.name }}</span>
+            </label>
+          }
+          @if (filter.categoryId) {
+            <button class="clear-filter" (click)="filter.categoryId = undefined; applyFilters()">
+              Toutes les catégories
+            </button>
+          }
+        </div>
+
+        <!-- Price Filter -->
+        <div class="filter-group">
+          <h4>Prix (MAD)</h4>
+          <div class="price-inputs">
+            <input type="number" placeholder="Min" [(ngModel)]="filter.minPrice" (change)="applyFilters()">
+            <span>—</span>
+            <input type="number" placeholder="Max" [(ngModel)]="filter.maxPrice" (change)="applyFilters()">
+          </div>
+        </div>
+
+        <!-- Rating Filter -->
+        <div class="filter-group">
+          <h4>Note minimum</h4>
+          @for (r of [4,3,2,1]; track r) {
+            <label class="filter-option">
+              <input type="radio" name="rating" [value]="r"
+                [checked]="filter.minRating === r"
+                (change)="filter.minRating = r; applyFilters()">
+              <span class="rating-label">
+                @for (s of [1,2,3,4,5]; track s) {
+                  <span class="material-icons" [style.color]="s <= r ? '#FBBF24' : '#D1D5DB'" style="font-size:16px">star</span>
+                }
+                & plus
+              </span>
+            </label>
+          }
+          @if (filter.minRating) {
+            <button class="clear-filter" (click)="filter.minRating = undefined; applyFilters()">Toutes les notes</button>
+          }
+        </div>
+
+        <!-- Manufacturer Filter -->
+        <div class="filter-group">
+          <h4>Marque</h4>
+          <select [(ngModel)]="filter.manufacturer" (change)="applyFilters()" class="filter-select">
+            <option [ngValue]="undefined">Toutes les marques</option>
+            @for (m of manufacturers; track m) {
+              <option [value]="m">{{ m }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Availability Filter -->
+        <div class="filter-group">
+          <label class="filter-option">
+            <input type="checkbox" [(ngModel)]="filter.inStock" (change)="applyFilters()">
+            <span>En stock uniquement</span>
+          </label>
+        </div>
+
+        <button class="btn-outline" style="width:100%" (click)="resetFilters()">
+          Réinitialiser les filtres
+        </button>
+      </aside>
+
+      <!-- Products Grid -->
+      <div class="catalog-main">
+        <div class="catalog-toolbar">
+          <button class="filter-toggle" (click)="filtersOpen = true">
+            <span class="material-icons-outlined">tune</span> Filtres
+          </button>
+          <div class="sort-control">
+            <label>Trier par :</label>
+            <select [(ngModel)]="sortValue" (change)="onSortChange()">
+              <option value="createdAt-desc">Plus récents</option>
+              <option value="price-asc">Prix croissant</option>
+              <option value="price-desc">Prix décroissant</option>
+              <option value="rating-desc">Mieux notés</option>
+              <option value="title-asc">Nom A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        @if (loading) {
+          <div class="loading-grid">
+            @for (i of [1,2,3,4,5,6,7,8]; track i) {
+              <div class="skeleton-card">
+                <div class="skeleton-image"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line short"></div>
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line medium"></div>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (products.length === 0) {
+          <div class="empty-state">
+            <span class="material-icons-outlined" style="font-size:64px;color:var(--grey-300)">search_off</span>
+            <h3>Aucun produit trouvé</h3>
+            <p>Essayez de modifier vos filtres ou votre recherche</p>
+            <button class="btn-primary" (click)="resetFilters()">Réinitialiser</button>
+          </div>
+        } @else {
+          <div class="products-grid">
+            @for (product of products; track product.id) {
+              <app-product-card [product]="product" />
+            }
+          </div>
+
+          <!-- Pagination -->
+          @if (totalPages > 1) {
+            <div class="pagination">
+              <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+                <span class="material-icons">chevron_left</span>
+              </button>
+              @for (p of pageNumbers; track p) {
+                <button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">
+                  {{ p + 1 }}
+                </button>
+              }
+              <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>

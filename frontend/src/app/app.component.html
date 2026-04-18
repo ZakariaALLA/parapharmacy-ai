@@ -1,0 +1,11 @@
+@if (!isAdminRoute) {
+  <app-header />
+}
+
+<main [class.main-content]="!isAdminRoute">
+  <router-outlet />
+</main>
+
+@if (!isAdminRoute) {
+  <app-footer />
+}

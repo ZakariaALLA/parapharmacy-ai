@@ -62,7 +62,7 @@
           <div class="info-section">
             <h3 class="section-title">
               <span class="material-icons-outlined">shopping_basket</span> 
-              Articles ({{ selectedOrder.items?.length || 0 }})
+              Articles ({{ selectedOrder.items.length }})
             </h3>
             <div class="order-items-list">
               @for (item of selectedOrder.items; track item.id) {

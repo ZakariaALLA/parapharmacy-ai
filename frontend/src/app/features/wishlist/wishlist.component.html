@@ -1,0 +1,22 @@
+<div class="wishlist-page container">
+  <h1>Ma Liste de Souhaits</h1>
+  @if (wishlist.items().length === 0) {
+    <div class="empty">
+      <span class="material-icons-outlined" style="font-size:80px;color:var(--grey-300)">favorite_border</span>
+      <h2>Votre liste est vide</h2>
+      <p>Ajoutez des produits à votre liste de souhaits pour les retrouver facilement</p>
+      <a routerLink="/produits" class="btn-primary">Découvrir nos produits</a>
+    </div>
+  } @else {
+    <div class="wishlist-grid">
+      @for (product of wishlist.items(); track product.id) {
+        <div class="wishlist-item">
+          <app-product-card [product]="product" />
+          <button class="remove-btn" (click)="remove(product.id)">
+            <span class="material-icons">close</span> Retirer
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

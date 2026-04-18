@@ -9,25 +9,8 @@ import { filter } from 'rxjs';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, CommonModule],
-  template: `
-    @if (!isAdminRoute) {
-      <app-header />
-    }
-    
-    <main [class.main-content]="!isAdminRoute">
-      <router-outlet />
-    </main>
-
-    @if (!isAdminRoute) {
-      <app-footer />
-    }
-  `,
-  styles: [`
-    .main-content {
-      min-height: calc(100vh - var(--header-height) - 300px);
-      padding-top: var(--header-height);
-    }
-  `]
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   isAdminRoute = false;

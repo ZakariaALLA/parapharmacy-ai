@@ -1,0 +1,42 @@
+<div class="product-card" [class.out-of-stock]="product.stockQuantity === 0">
+  <a [routerLink]="['/produit', product.slug]" class="card-image-link">
+    <div class="card-image">
+      <img [src]="primaryImage" [alt]="product.title" loading="lazy" />
+      @if (product.stockQuantity === 0) {
+        <div class="stock-overlay">Rupture de stock</div>
+      }
+      @if (product.stockQuantity > 0 && product.stockQuantity <= 10) {
+        <span class="low-stock-badge">Plus que {{ product.stockQuantity }} en stock</span>
+      }
+    </div>
+  </a>
+
+  <div class="card-body">
+    <span class="card-category">{{ product.categoryName }}</span>
+    <a [routerLink]="['/produit', product.slug]" class="card-title">{{ product.title }}</a>
+    <span class="card-manufacturer">{{ product.manufacturer }}</span>
+
+    <div class="card-rating">
+      @for (star of stars; track star) {
+        <span class="material-icons star" [class.filled]="star <= product.rating">
+          {{ star <= product.rating ? 'star' : (star - 0.5 <= product.rating ? 'star_half' : 'star_border') }}
+        </span>
+      }
+      <span class="rating-value">{{ product.rating | number:'1.1-1' }}</span>
+    </div>
+
+    <div class="card-footer">
+      <span class="card-price">{{ product.price | number:'1.2-2' }} <small>MAD</small></span>
+      <button
+        class="add-to-cart-btn"
+        [disabled]="product.stockQuantity === 0"
+        (click)="onAddToCart($event)"
+        [class.added]="isInCart"
+      >
+        <span class="material-icons-outlined">
+          {{ isInCart ? 'check' : 'add_shopping_cart' }}
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

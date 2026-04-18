@@ -1,0 +1,41 @@
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <span class="logo-icon">💊</span>
+      <div>
+        <span class="brand-name">ParaPharma</span>
+        <span class="brand-sub">Administration</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">
+        <span class="material-icons-outlined">dashboard</span>
+        Tableau de bord
+      </a>
+      <a routerLink="/admin/produits" routerLinkActive="active" class="nav-item">
+        <span class="material-icons-outlined">inventory_2</span>
+        Produits
+      </a>
+      <a routerLink="/admin/commandes" routerLinkActive="active" class="nav-item">
+        <span class="material-icons-outlined">receipt_long</span>
+        Commandes
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a routerLink="/" class="nav-item">
+        <span class="material-icons-outlined">storefront</span>
+        Voir la boutique
+      </a>
+      <button class="nav-item logout" (click)="auth.logout()">
+        <span class="material-icons-outlined">logout</span>
+        Déconnexion
+      </button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <router-outlet />
+  </main>
+</div>

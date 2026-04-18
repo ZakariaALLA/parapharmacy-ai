@@ -1,0 +1,109 @@
+@if (product) {
+  <div class="detail-page container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a routerLink="/">Accueil</a>
+      <span class="material-icons">chevron_right</span>
+      <a routerLink="/produits">Produits</a>
+      <span class="material-icons">chevron_right</span>
+      <a [routerLink]="['/produits']" [queryParams]="{categoryId: product.categoryId}">{{ product.categoryName }}</a>
+      <span class="material-icons">chevron_right</span>
+      <span class="current">{{ product.title }}</span>
+    </nav>
+
+    <div class="product-layout">
+      <!-- Images -->
+      <div class="product-images">
+        <div class="main-image">
+          <img [src]="selectedImage" [alt]="product.title" />
+        </div>
+        @if (product.images.length > 1) {
+          <div class="thumbnails">
+            @for (img of product.images; track img.id) {
+              <button class="thumb" [class.active]="selectedImage === img.imageUrl" (click)="selectedImage = img.imageUrl">
+                <img [src]="img.imageUrl" [alt]="product.title" />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Info -->
+      <div class="product-info">
+        <span class="product-category">{{ product.categoryName }}</span>
+        <h1>{{ product.title }}</h1>
+        <span class="product-manufacturer">Par {{ product.manufacturer }}</span>
+
+        <div class="product-rating">
+          @for (s of [1,2,3,4,5]; track s) {
+            <span class="material-icons" [style.color]="s <= product.rating ? '#FBBF24' : '#D1D5DB'">star</span>
+          }
+          <span class="rating-text">{{ product.rating | number:'1.1-1' }} / 5</span>
+        </div>
+
+        <div class="product-price">
+          {{ product.price | number:'1.2-2' }} <small>MAD</small>
+        </div>
+
+        <div class="stock-status" [class.in-stock]="product.stockQuantity > 0" [class.out]="product.stockQuantity === 0">
+          <span class="material-icons">{{ product.stockQuantity > 0 ? 'check_circle' : 'cancel' }}</span>
+          {{ product.stockQuantity > 0 ? 'En stock (' + product.stockQuantity + ' disponibles)' : 'Rupture de stock' }}
+        </div>
+
+        <!-- Quantity + Add to Cart -->
+        <div class="product-actions">
+          <div class="quantity-control">
+            <button (click)="decreaseQty()" [disabled]="quantity <= 1">
+              <span class="material-icons">remove</span>
+            </button>
+            <span class="qty-value">{{ quantity }}</span>
+            <button (click)="increaseQty()" [disabled]="quantity >= product.stockQuantity">
+              <span class="material-icons">add</span>
+            </button>
+          </div>
+          <button class="btn-primary btn-add-cart" [disabled]="product.stockQuantity === 0" (click)="addToCart()">
+            <span class="material-icons-outlined">shopping_bag</span>
+            Ajouter au panier
+          </button>
+          <button class="btn-wishlist" (click)="toggleWishlist()" [class.active]="isWishlisted">
+            <span class="material-icons">{{ isWishlisted ? 'favorite' : 'favorite_border' }}</span>
+          </button>
+        </div>
+
+        <!-- Description -->
+        <div class="product-section">
+          <h3>Description</h3>
+          <p>{{ product.description }}</p>
+        </div>
+
+        @if (product.usageTips) {
+          <div class="product-section">
+            <h3>Conseils d'utilisation</h3>
+            <p>{{ product.usageTips }}</p>
+          </div>
+        }
+
+        <!-- COD Badge -->
+        <div class="cod-badge">
+          <span class="material-icons-outlined">local_shipping</span>
+          <div>
+            <strong>Paiement à la livraison</strong>
+            <span>Livraison partout au Maroc</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    @if (relatedProducts.length > 0) {
+      <section class="related-section">
+        <h2>Produits similaires</h2>
+        <div class="related-grid">
+          @for (p of relatedProducts; track p.id) {
+            <app-product-card [product]="p" />
+          }
+        </div>
+      </section>
+    }
+  </div>
+}

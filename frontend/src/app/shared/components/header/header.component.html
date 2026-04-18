@@ -1,0 +1,90 @@
+<header class="header" [class.scrolled]="isScrolled()">
+  <div class="header-inner container">
+    <!-- Logo -->
+    <a routerLink="/" class="logo">
+      <span class="logo-icon">💊</span>
+      <div class="logo-text">
+        <span class="logo-name">ParaPharma</span>
+        <span class="logo-country">Maroc</span>
+      </div>
+    </a>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <span class="material-icons-outlined search-icon">search</span>
+      <input
+        type="text"
+        placeholder="Rechercher un produit, une marque..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+        id="header-search"
+      />
+      @if (searchQuery) {
+        <button class="search-clear" (click)="searchQuery = ''">
+          <span class="material-icons">close</span>
+        </button>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="header-actions">
+      @if (auth.isAuthenticated()) {
+        <div class="user-menu" (click)="showUserMenu = !showUserMenu">
+          <span class="material-icons-outlined">person</span>
+          <span class="user-name">{{ auth.user()?.fullName }}</span>
+          @if (showUserMenu) {
+            <div class="dropdown-menu" id="user-dropdown">
+              @if (auth.isAdmin()) {
+                <a routerLink="/admin" class="dropdown-item" (click)="showUserMenu = false">
+                  <span class="material-icons-outlined">dashboard</span>
+                  Tableau de bord
+                </a>
+              }
+              <a routerLink="/liste-souhaits" class="dropdown-item" (click)="showUserMenu = false">
+                <span class="material-icons-outlined">favorite_border</span>
+                Liste de souhaits
+              </a>
+              <button class="dropdown-item" (click)="logout()">
+                <span class="material-icons-outlined">logout</span>
+                Déconnexion
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a routerLink="/connexion" class="header-btn" id="login-btn">
+          <span class="material-icons-outlined">person_outline</span>
+          <span class="btn-label">Connexion</span>
+        </a>
+      }
+
+      <a routerLink="/liste-souhaits" class="header-btn" id="wishlist-btn">
+        <span class="material-icons-outlined">favorite_border</span>
+      </a>
+
+      <a routerLink="/panier" class="header-btn cart-btn" id="cart-btn">
+        <span class="material-icons-outlined">shopping_bag</span>
+        @if (cart.itemCount() > 0) {
+          <span class="cart-badge">{{ cart.itemCount() }}</span>
+        }
+      </a>
+
+      <!-- Mobile menu toggle -->
+      <button class="mobile-toggle" (click)="mobileMenuOpen = !mobileMenuOpen">
+        <span class="material-icons">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav class="nav" [class.open]="mobileMenuOpen">
+    <div class="container nav-inner">
+      <a routerLink="/produits" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Tous les produits</a>
+      <a routerLink="/produits" [queryParams]="{categoryId: 1}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Dermo-Cosmétiques</a>
+      <a routerLink="/produits" [queryParams]="{categoryId: 2}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Compléments</a>
+      <a routerLink="/produits" [queryParams]="{categoryId: 3}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Hygiène</a>
+      <a routerLink="/produits" [queryParams]="{categoryId: 4}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Bébé</a>
+      <a routerLink="/produits" [queryParams]="{categoryId: 5}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Soins Peau</a>
+    </div>
+  </nav>
+</header>

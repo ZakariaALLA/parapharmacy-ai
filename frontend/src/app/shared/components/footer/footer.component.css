@@ -1,0 +1,96 @@
+.footer {
+  background: var(--grey-900);
+  color: var(--grey-300);
+  padding: 60px 0 0;
+  margin-top: 80px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+  gap: 40px;
+}
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.footer-logo .logo-icon { font-size: 32px; }
+.footer-logo .logo-name { font-size: 20px; font-weight: 800; color: white; }
+.footer-logo .logo-sub { font-size: 10px; font-weight: 600; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+.footer-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--grey-400);
+  margin-bottom: 16px;
+}
+.footer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(126, 217, 87, 0.1);
+  border: 1px solid rgba(126, 217, 87, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+.footer-badge .material-icons-outlined { font-size: 16px; }
+
+.footer-col h4 {
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.footer-col a {
+  display: block;
+  font-size: 13px;
+  color: var(--grey-400);
+  padding: 6px 0;
+  transition: color var(--transition-fast);
+}
+.footer-col a:hover { color: var(--primary); }
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  color: var(--grey-400);
+}
+.contact-item .material-icons-outlined { font-size: 18px; color: var(--primary); }
+
+.payment-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+}
+.payment-info .material-icons-outlined { font-size: 24px; color: var(--primary); }
+.payment-info strong { display: block; font-size: 12px; color: white; }
+.payment-info small { font-size: 11px; color: var(--grey-400); }
+
+.footer-bottom {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+  font-size: 12px;
+  color: var(--grey-500);
+}
+
+@media (max-width: 768px) {
+  .footer { padding: 40px 0 0; }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
