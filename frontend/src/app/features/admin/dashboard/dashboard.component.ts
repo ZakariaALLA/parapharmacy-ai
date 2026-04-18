@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { OrderService, Dashboard } from '../../../core/services/order.service';
@@ -13,95 +13,123 @@ import Chart from 'chart.js/auto';
 })
 export class DashboardComponent implements OnInit {
   stats: Dashboard | null = null;
-  chart: any;
+  salesChart: any;
+  activeTab: 'sales' | 'orders' = 'sales';
+  activeTimeFilter: 'all' = 'all';
 
-  @ViewChild('statusChart') statusChartRef!: ElementRef;
+  @ViewChild('salesTrendChart') salesTrendChartRef!: ElementRef;
 
-  constructor(private orderService: OrderService) { }
+  constructor(private orderService: OrderService) {}
 
   ngOnInit(): void {
     this.orderService.getDashboard().subscribe({
       next: (data) => {
         this.stats = data;
-        // Wait for DOM to update and render the canvas
-        setTimeout(() => this.initChart(), 50);
+        setTimeout(() => this.initSalesChart(), 100);
       },
       error: (err) => console.error('Failed to load dashboard stats', err)
     });
   }
 
-  initChart(): void {
-    if (!this.statusChartRef || !this.stats) return;
+  initSalesChart(): void {
+    if (!this.salesTrendChartRef || !this.stats) return;
 
-    if (this.chart) {
-      this.chart.destroy();
+    if (this.salesChart) {
+      this.salesChart.destroy();
     }
 
-    const total = this.stats.pendingOrders + this.stats.confirmedOrders + this.stats.shippedOrders + this.stats.deliveredOrders;
-    if (total === 0) return; // Prevent charting if zero data
+    const ctx = this.salesTrendChartRef.nativeElement.getContext('2d');
+    const monthlySales = this.stats.monthlySales || [];
 
-    const ctx = this.statusChartRef.nativeElement.getContext('2d');
+    const monthNames = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
 
-    // Create gradient for chart if needed, or use vibrant solid colors
-    this.chart = new Chart(ctx, {
-      type: 'doughnut',
+    const labels = monthlySales.map(m => {
+      const monthLabel = monthNames[m.month - 1] || `M${m.month}`;
+      return `${monthLabel} ${m.year}`;
+    });
+
+    const revenueData = monthlySales.map(m => m.revenue);
+    const orderData = monthlySales.map(m => m.orderCount);
+
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+    gradient.addColorStop(0, 'rgba(24, 144, 255, 0.9)');
+    gradient.addColorStop(1, 'rgba(24, 144, 255, 0.4)');
+
+    const gradient2 = ctx.createLinearGradient(0, 0, 0, 350);
+    gradient2.addColorStop(0, 'rgba(47, 194, 163, 0.9)');
+    gradient2.addColorStop(1, 'rgba(47, 194, 163, 0.4)');
+
+    this.salesChart = new Chart(ctx, {
+      type: 'bar',
       data: {
-        labels: ['En attente', 'Confirmées', 'Expédiées', 'Livrées'],
-        datasets: [{
-          data: [
-            this.stats.pendingOrders,
-            this.stats.confirmedOrders,
-            this.stats.shippedOrders,
-            this.stats.deliveredOrders
-          ],
-          backgroundColor: [
-            '#f59e0b', // warning/orange
-            '#3b82f6', // info/blue
-            '#8b5cf6', // shipped/purple
-            '#10b981'  // success/green
-          ],
-          borderWidth: 0,
-          hoverOffset: 8,
-          borderRadius: 4 // Add rounded corners to chart segments
-        }]
+        labels: labels,
+        datasets: [
+          {
+            label: 'Revenus (MAD)',
+            data: revenueData,
+            backgroundColor: gradient,
+            borderRadius: 4,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          },
+          {
+            label: 'Commandes',
+            data: orderData,
+            backgroundColor: gradient2,
+            borderRadius: 4,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          }
+        ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        layout: {
-          padding: 20
+        interaction: {
+          intersect: false,
+          mode: 'index'
         },
         plugins: {
           legend: {
-            position: 'right',
-            labels: {
-              usePointStyle: true,
-              pointStyle: 'circle',
-              padding: 20,
-              color: '#475569',
-              font: {
-                family: "'Inter', -apple-system, sans-serif",
-                size: 13,
-                weight: 'normal'
-              }
-            }
+            display: false
           },
           tooltip: {
-            backgroundColor: 'rgba(15, 23, 42, 0.95)',
-            titleFont: { family: "'Inter', sans-serif", size: 13, weight: 'normal' },
-            bodyFont: { family: "'Inter', sans-serif", size: 15, weight: 'bold' },
-            padding: 16,
-            cornerRadius: 12,
-            boxPadding: 8,
-            usePointStyle: true,
-            borderColor: 'rgba(255,255,255,0.1)',
-            borderWidth: 1
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleFont: { family: "'Inter', sans-serif", size: 13 },
+            bodyFont: { family: "'Inter', sans-serif", size: 12 },
+            padding: 12,
+            cornerRadius: 8,
+            boxPadding: 6
           }
         },
-        cutout: '78%', // Sleeker, thinner donut
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              color: '#8c8c8c',
+              font: { family: "'Inter', sans-serif", size: 12 }
+            },
+            border: {
+              display: false
+            }
+          },
+          y: {
+            grid: {
+              color: 'rgba(0, 0, 0, 0.04)'
+            },
+            ticks: {
+              color: '#8c8c8c',
+              font: { family: "'Inter', sans-serif", size: 12 }
+            },
+            border: {
+              display: false
+            }
+          }
+        },
         animation: {
-          animateScale: true,
-          animateRotate: true,
           duration: 1000,
           easing: 'easeOutQuart'
         }
@@ -109,19 +137,27 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'PENDING': 'En attente', 'CONFIRMED': 'Confirmée',
-      'SHIPPED': 'Expédiée', 'DELIVERED': 'Livrée', 'CANCELLED': 'Annulée'
-    };
-    return labels[status] || status;
+  formatCurrency(value: number): string {
+    if (value >= 1000000) {
+      return (value / 1000000).toFixed(1) + 'M';
+    } else if (value >= 1000) {
+      return (value / 1000).toFixed(0) + 'K';
+    }
+    return value.toFixed(0);
   }
 
-  getStatusClass(status: string): string {
-    const classes: Record<string, string> = {
-      'PENDING': 'warning', 'CONFIRMED': 'info',
-      'SHIPPED': 'shipped', 'DELIVERED': 'success', 'CANCELLED': 'danger'
-    };
-    return classes[status] || 'info';
+  getChangeIcon(value: number): string {
+    return value >= 0 ? 'trending_up' : 'trending_down';
+  }
+
+  getChangeClass(value: number): string {
+    return value >= 0 ? 'positive' : 'negative';
+  }
+
+  getRankClass(rank: number): string {
+    if (rank === 1) return 'rank-gold';
+    if (rank === 2) return 'rank-silver';
+    if (rank === 3) return 'rank-bronze';
+    return 'rank-default';
   }
 }

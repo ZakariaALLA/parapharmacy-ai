@@ -43,6 +43,27 @@ export interface Dashboard {
   lowStockProducts: number;
   totalUsers: number;
   recentOrders: Order[];
+  todayRevenue: number;
+  todayOrders: number;
+  deliveryRate: number;
+  weekRevenueChange: number;
+  dayRevenueChange: number;
+  monthlySales: MonthlySales[];
+  topProducts: TopProduct[];
+}
+
+export interface MonthlySales {
+  year: number;
+  month: number;
+  revenue: number;
+  orderCount: number;
+}
+
+export interface TopProduct {
+  rank: number;
+  productName: string;
+  totalSales: number;
+  quantitySold: number;
 }
 
 @Injectable({ providedIn: 'root' })

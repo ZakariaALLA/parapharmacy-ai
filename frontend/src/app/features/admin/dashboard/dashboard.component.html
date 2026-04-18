@@ -1,182 +1,151 @@
-<div class="dashboard-wrapper">
-  <!-- Dynamic Glowing Header -->
-  <header class="dashboard-header animate-fade-in-down">
-    <div class="header-content">
-      <h1 class="gradient-text">Aperçu du Tableau de Bord</h1>
-      <p>Gérez et analysez les performances de votre Parapharmacie en temps réel.</p>
-    </div>
-    <div class="header-actions">
-      <!-- Quick actions could go here in the future -->
-      <button class="btn-glow" routerLink="/admin/produits">
-        <span class="material-icons-outlined">add</span> Nouveau Produit
-      </button>
-    </div>
-  </header>
-
+<div class="dashboard-container">
   @if (stats) {
-    <!-- Floating KPI Grid -->
-    <div class="kpi-grid stagger-animation">
-      <!-- Orders KPI -->
-      <div class="kpi-card premium-card">
-        <div class="kpi-background gradient-blue"></div>
-        <div class="kpi-header">
-          <div class="icon-orb blue-orb">
-            <span class="material-icons-outlined">local_shipping</span>
+    <!-- KPI Cards Row -->
+    <div class="kpi-row">
+      <!-- Total Sales Card -->
+      <div class="kpi-card sales-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Ventes Totales</span>
+          <span class="kpi-info-icon material-icons-outlined">info</span>
+        </div>
+        <div class="kpi-main-value">{{ stats.totalRevenue | number:'1.0-0' }} <span class="kpi-currency">MAD</span></div>
+        <div class="kpi-meta-row">
+          <div class="kpi-meta-item">
+            <span class="meta-label">Semaine</span>
+            <span class="meta-value" [class]="getChangeClass(stats.weekRevenueChange)">
+              {{ stats.weekRevenueChange > 0 ? '+' : '' }}{{ stats.weekRevenueChange }}%
+              <span class="material-icons-outlined meta-icon">{{ getChangeIcon(stats.weekRevenueChange) }}</span>
+            </span>
           </div>
-          <span class="kpi-trend positive">+12%</span>
-        </div>
-        <div class="kpi-body">
-          <h3>Commandes</h3>
-          <div class="kpi-value">{{ stats.totalOrders }}</div>
-        </div>
-      </div>
-      
-      <!-- Revenue KPI -->
-      <div class="kpi-card premium-card">
-        <div class="kpi-background gradient-green"></div>
-        <div class="kpi-header">
-          <div class="icon-orb green-orb">
-            <span class="material-icons-outlined">savings</span>
+          <div class="kpi-meta-item">
+            <span class="meta-label">Jour</span>
+            <span class="meta-value" [class]="getChangeClass(stats.dayRevenueChange)">
+              {{ stats.dayRevenueChange > 0 ? '+' : '' }}{{ stats.dayRevenueChange }}%
+              <span class="material-icons-outlined meta-icon">{{ getChangeIcon(stats.dayRevenueChange) }}</span>
+            </span>
           </div>
-          <span class="kpi-trend positive">+8%</span>
         </div>
-        <div class="kpi-body">
-          <h3>Revenus</h3>
-          <div class="kpi-value">{{ stats.totalRevenue | number:'1.0-2' }} <span class="currency">MAD</span></div>
-        </div>
-      </div>
-
-      <!-- Products KPI -->
-      <div class="kpi-card premium-card">
-        <div class="kpi-background gradient-purple"></div>
-        <div class="kpi-header">
-          <div class="icon-orb purple-orb">
-            <span class="material-icons-outlined">category</span>
-          </div>
-          <span class="kpi-trend neutral">Stable</span>
-        </div>
-        <div class="kpi-body">
-          <h3>Produits</h3>
-          <div class="kpi-value">{{ stats.totalProducts }}</div>
+        <div class="kpi-footer">
+          <span class="footer-label">Ventes du jour</span>
+          <span class="footer-value">{{ stats.todayRevenue | number:'1.0-0' }} MAD</span>
         </div>
       </div>
 
-      <!-- Users KPI -->
-      <div class="kpi-card premium-card">
-        <div class="kpi-background gradient-orange"></div>
-        <div class="kpi-header">
-          <div class="icon-orb orange-orb">
-            <span class="material-icons-outlined">people</span>
-          </div>
-          <span class="kpi-trend positive">+24%</span>
+      <!-- Orders Card -->
+      <div class="kpi-card orders-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Commandes</span>
+          <span class="kpi-info-icon material-icons-outlined">info</span>
         </div>
-        <div class="kpi-body">
-          <h3>Clients</h3>
-          <div class="kpi-value">{{ stats.totalUsers }}</div>
+        <div class="kpi-main-value">{{ stats.totalOrders | number }}</div>
+        <div class="kpi-mini-chart">
+          <!-- SVG area chart decoration -->
+          <svg viewBox="0 0 200 60" class="mini-area-chart">
+            <defs>
+              <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="rgba(24, 144, 255, 0.3)" />
+                <stop offset="100%" stop-color="rgba(24, 144, 255, 0.02)" />
+              </linearGradient>
+            </defs>
+            <path d="M0,45 Q20,40 40,35 T80,28 T120,20 T160,30 T200,15 V60 H0 Z" fill="url(#areaGrad)" />
+            <path d="M0,45 Q20,40 40,35 T80,28 T120,20 T160,30 T200,15" fill="none" stroke="#1890ff" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span class="footer-label">Commandes du jour</span>
+          <span class="footer-value">{{ stats.todayOrders }}</span>
+        </div>
+      </div>
+
+      <!-- Products Card -->
+      <div class="kpi-card products-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Produits</span>
+          <span class="kpi-info-icon material-icons-outlined">info</span>
+        </div>
+        <div class="kpi-main-value">{{ stats.totalProducts | number }}</div>
+        <div class="kpi-mini-chart">
+          <!-- SVG bar chart decoration -->
+          <svg viewBox="0 0 200 60" class="mini-bar-chart">
+            <rect x="10" y="30" width="20" height="30" rx="3" fill="rgba(114, 46, 209, 0.3)"/>
+            <rect x="40" y="20" width="20" height="40" rx="3" fill="rgba(114, 46, 209, 0.4)"/>
+            <rect x="70" y="35" width="20" height="25" rx="3" fill="rgba(114, 46, 209, 0.3)"/>
+            <rect x="100" y="10" width="20" height="50" rx="3" fill="rgba(114, 46, 209, 0.6)"/>
+            <rect x="130" y="25" width="20" height="35" rx="3" fill="rgba(114, 46, 209, 0.4)"/>
+            <rect x="160" y="15" width="20" height="45" rx="3" fill="rgba(114, 46, 209, 0.5)"/>
+          </svg>
+        </div>
+        <div class="kpi-footer">
+          <span class="footer-label">Stock faible</span>
+          <span class="footer-value footer-warning">{{ stats.lowStockProducts }}</span>
+        </div>
+      </div>
+
+      <!-- Operation Effect Card -->
+      <div class="kpi-card effect-card">
+        <div class="kpi-card-header">
+          <span class="kpi-title">Taux de Livraison</span>
+        </div>
+        <div class="kpi-effect-value">
+          <div class="effect-circle">
+            <svg viewBox="0 0 100 100" class="effect-ring">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#f0f0f0" stroke-width="8"/>
+              <circle cx="50" cy="50" r="40" fill="none" stroke="#52c41a" stroke-width="8"
+                      stroke-dasharray="251.2"
+                      [attr.stroke-dashoffset]="251.2 - (251.2 * stats.deliveryRate / 100)"
+                      stroke-linecap="round"
+                      transform="rotate(-90 50 50)"/>
+            </svg>
+            <span class="effect-text">{{ stats.deliveryRate | number:'1.0-0' }}%</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="main-grid stagger-animation-delayed">
-      
-      <!-- Left Column: Chart Container -->
-      <div class="premium-card chart-section">
-        <div class="section-header border-bottom">
-          <div class="header-title-group">
-            <div class="accent-line"></div>
-            <h2>Statut des Commandes</h2>
+    <!-- Bottom Section: Chart + Rankings -->
+    <div class="bottom-section">
+      <!-- Sales Trend Chart -->
+      <div class="chart-panel">
+        <div class="chart-panel-header">
+          <div class="chart-tabs">
+            <button class="chart-tab" [class.active]="activeTab === 'sales'" (click)="activeTab = 'sales'">Ventes</button>
+            <button class="chart-tab" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">Commandes</button>
           </div>
-          <span class="material-icons-outlined soft-icon">pie_chart_outline</span>
         </div>
-        
+        <h3 class="chart-title">Tendance des Ventes</h3>
         <div class="chart-wrapper">
-          <canvas #statusChart></canvas>
-        </div>
-
-        <!-- Mini Insights -->
-        <div class="mini-insights">
-          <div class="insight-pill danger-pill">
-            <div class="pill-icon"><span class="material-icons-outlined">warning_amber</span></div>
-            <div class="pill-data">
-              <span class="pill-val">{{ stats.lowStockProducts }}</span>
-              <span class="pill-lbl">Stocks Faibles</span>
-            </div>
-          </div>
-          <div class="insight-pill info-pill">
-            <div class="pill-icon"><span class="material-icons-outlined">pending_actions</span></div>
-            <div class="pill-data">
-              <span class="pill-val">{{ stats.pendingOrders }}</span>
-              <span class="pill-lbl">En Attente</span>
-            </div>
-          </div>
+          <canvas #salesTrendChart></canvas>
         </div>
       </div>
 
-      <!-- Right Column: Recent Orders Container -->
-      <div class="premium-card orders-section">
-        <div class="section-header border-bottom">
-          <div class="header-title-group">
-            <div class="accent-line"></div>
-            <h2>Dernières Commandes</h2>
-          </div>
-          <a routerLink="/admin/commandes" class="link-btn">
-            Voir tout <span class="material-icons-outlined">east</span>
-          </a>
-        </div>
-        
-        <div class="orders-list">
-          @if (stats.recentOrders.length === 0) {
-            <div class="ultra-empty-state">
-              <div class="empty-icon-wrapper">
-                <span class="material-icons-outlined">inbox</span>
+      <!-- Sales Ranking -->
+      <div class="ranking-panel">
+        <h3 class="ranking-title">Classement des Ventes</h3>
+        <div class="ranking-list">
+          @if (stats.topProducts && stats.topProducts.length > 0) {
+            @for (product of stats.topProducts; track product.rank) {
+              <div class="ranking-item">
+                <div class="rank-badge" [class]="getRankClass(product.rank)">
+                  {{ product.rank }}
+                </div>
+                <span class="ranking-name">{{ product.productName }}</span>
+                <span class="ranking-value">{{ product.totalSales | number:'1.0-0' }}</span>
               </div>
-              <h4>Aucune activité</h4>
-              <p>Il n'y a pas de commandes récentes à afficher.</p>
-            </div>
+            }
           } @else {
-            <div class="modern-table-wrapper">
-              <table class="sleek-table">
-                <thead>
-                  <tr>
-                    <th>Réf.</th>
-                    <th>Client</th>
-                    <th>Montant</th>
-                    <th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (order of stats.recentOrders.slice(0, 6); track order.id) {
-                    <tr class="table-row-hover">
-                      <td class="ref-cell">#{{ order.id }}</td>
-                      <td>
-                        <div class="user-bubble">
-                          <div class="bubble-avatar" [attr.data-initial]="order.customerName.charAt(0)"></div>
-                          <span class="bubble-name">{{ order.customerName }}</span>
-                        </div>
-                      </td>
-                      <td class="amount-cell">{{ order.totalPrice | number:'1.2-2' }} <small>MAD</small></td>
-                      <td>
-                        <div class="sleek-badge" [class]="'badge-' + getStatusClass(order.status)">
-                          <span class="badge-dot"></span>
-                          {{ getStatusLabel(order.status) }}
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+            <div class="ranking-empty">
+              <span class="material-icons-outlined">assessment</span>
+              <p>Aucune donnée de vente disponible</p>
             </div>
           }
         </div>
       </div>
-
     </div>
   } @else {
-    <!-- Sleek Loading State -->
-    <div class="premium-loader-container">
-      <div class="glowing-spinner"></div>
-      <p class="loader-text">Récupération des données...</p>
+    <!-- Loading State -->
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Chargement du tableau de bord...</p>
     </div>
   }
 </div>
