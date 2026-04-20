@@ -119,4 +119,11 @@ public class ProductController {
         String imageUrl = fileStorageService.storeFile(file);
         return ResponseEntity.ok(productService.addImageToProduct(id, imageUrl, primary));
     }
+
+    @DeleteMapping("/{productId}/images/{imageId}")
+    public ResponseEntity<ProductDTO> deleteImage(
+            @PathVariable Long productId,
+            @PathVariable Long imageId) {
+        return ResponseEntity.ok(productService.removeImageFromProduct(productId, imageId));
+    }
 }

@@ -11,180 +11,242 @@
 
   <!-- Product Form Modal / Drawer -->
   @if (showForm) {
-    <div class="modal-overlay" (click)="showForm = false">
-      <div class="modal glass-modal slide-in" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <h2>{{ editingId ? 'Modifier le produit' : 'Nouveau produit' }}</h2>
-          <button class="close-btn" (click)="showForm = false">
-            <span class="material-icons-outlined">close</span>
-          </button>
-        </div>
-        
-        <div class="modal-body custom-scrollbar">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Titre de produit *</label>
-              <input type="text" [(ngModel)]="form.title" placeholder="Ex: Sérum La Roche-Posay">
+  <div class="modal-overlay" (click)="showForm = false">
+    <div class="modal glass-modal slide-in" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ editingId ? 'Modifier le produit' : 'Nouveau produit' }}</h2>
+        <button class="close-btn" (click)="showForm = false">
+          <span class="material-icons-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="modal-body custom-scrollbar">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Titre de produit *</label>
+            <input type="text" [(ngModel)]="form.title" placeholder="Ex: Sérum La Roche-Posay">
+          </div>
+          <div class="form-group">
+            <label>Prix (MAD) *</label>
+            <div class="input-with-icon">
+              <span class="material-icons-outlined icon">payments</span>
+              <input type="number" [(ngModel)]="form.price" placeholder="0.00" step="0.5">
             </div>
-            <div class="form-group">
-              <label>Prix (MAD) *</label>
-              <div class="input-with-icon">
-                <span class="material-icons-outlined icon">payments</span>
-                <input type="number" [(ngModel)]="form.price" placeholder="0.00" step="0.5">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Catégorie *</label>
+            <select [(ngModel)]="form.categoryId">
+              <option [ngValue]="null" disabled selected>Sélectionner une catégorie</option>
+              @for (cat of categories; track cat.id) {
+              <option [ngValue]="cat.id">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fabricant / Marque</label>
+            <input type="text" [(ngModel)]="form.manufacturer" placeholder="Ex: CeraVe, Uriage...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description globale</label>
+          <textarea [(ngModel)]="form.description" rows="3"
+            placeholder="Informations et bénéfices du produit..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Conseils d'utilisation</label>
+          <textarea [(ngModel)]="form.usageTips" rows="2" placeholder="Application, dosage journalier..."></textarea>
+        </div>
+
+        <div class="form-row three-cols">
+          <div class="form-group">
+            <label>Stock existant</label>
+            <input type="number" [(ngModel)]="form.stockQuantity" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Avis (Note/5)</label>
+            <input type="number" [(ngModel)]="form.rating" placeholder="0.0" min="0" max="5" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>État du produit</label>
+            <select [(ngModel)]="form.active" class="state-select" [class.active-state]="form.active">
+              <option [ngValue]="true">🟢 Actif (En ligne)</option>
+              <option [ngValue]="false">🔴 Inactif (Masqué)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Image Management Section -->
+        <div class="image-management-section">
+          <div class="section-header">
+            <h3><span class="material-icons-outlined">image</span> Images du produit</h3>
+            @if (!editingId) {
+            <span class="info-pill">L'image sera ajoutée après la sauvegarde</span>
+            }
+          </div>
+
+          <!-- Existing Images Grid (Only when editing) -->
+          @if (editingId && currentProductImages.length > 0) {
+          <div class="images-grid">
+            @for (img of currentProductImages; track img.id) {
+            <div class="image-item" [class.primary]="img.isPrimary">
+              <img [src]="img.imageUrl" alt="Product image">
+              <button class="img-delete-btn" (click)="deleteImage(img.id)" title="Supprimer l'image">
+                <span class="material-icons">cancel</span>
+              </button>
+              @if (img.isPrimary) {
+              <span class="primary-tag">Principale</span>
+              }
+            </div>
+            }
+          </div>
+          }
+
+          <!-- Upload / Select New Image -->
+          <div class="upload-zone" [class.new-product-zone]="!editingId">
+            <div class="upload-controls">
+              <label class="upload-btn">
+                <input type="file" (change)="onFileSelected($event)" accept="image/*" hidden>
+                <span class="material-icons-outlined">add_a_photo</span>
+                {{ selectedFile ? 'Changer l\'image' : 'Choisir une image' }}
+              </label>
+
+              @if (selectedFile && editingId) {
+              <button class="btn-upload-submit" (click)="uploadImage()" [disabled]="uploading">
+                @if (uploading) {
+                <span class="spinner-sm"></span>
+                } @else {
+                <span class="material-icons-outlined">upload</span>
+                Télécharger maintenant
+                }
+              </button>
+              }
+            </div>
+
+            @if (imagePreview) {
+            <div class="upload-preview slide-in">
+              <div class="preview-wrapper">
+                <img [src]="imagePreview" alt="Preview">
+                @if (!editingId) {
+                <div class="preview-overlay">
+                  <span class="material-icons">check_circle</span>
+                  Prêt pour la sauvegarde
+                </div>
+                }
+              </div>
+              <div class="preview-info">
+                <p class="file-name">{{ selectedFile?.name }}</p>
+                <p class="file-size">{{ (selectedFile?.size || 0) / 1024 | number:'1.0-0' }} KB</p>
               </div>
             </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>Catégorie *</label>
-              <select [(ngModel)]="form.categoryId">
-                <option [ngValue]="null" disabled selected>Sélectionner une catégorie</option>
-                @for (cat of categories; track cat.id) {
-                  <option [ngValue]="cat.id">{{ cat.name }}</option>
-                }
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Fabricant / Marque</label>
-              <input type="text" [(ngModel)]="form.manufacturer" placeholder="Ex: CeraVe, Uriage...">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label>Description globale</label>
-            <textarea [(ngModel)]="form.description" rows="3" placeholder="Informations et bénéfices du produit..."></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Conseils d'utilisation</label>
-            <textarea [(ngModel)]="form.usageTips" rows="2" placeholder="Application, dosage journalier..."></textarea>
-          </div>
-          
-          <div class="form-row three-cols">
-            <div class="form-group">
-              <label>Stock existant</label>
-              <input type="number" [(ngModel)]="form.stockQuantity" placeholder="0">
-            </div>
-            <div class="form-group">
-              <label>Avis (Note/5)</label>
-              <input type="number" [(ngModel)]="form.rating" placeholder="0.0" min="0" max="5" step="0.1">
-            </div>
-            <div class="form-group">
-              <label>État du produit</label>
-              <select [(ngModel)]="form.active" class="state-select" [class.active-state]="form.active">
-                <option [ngValue]="true">🟢 Actif (En ligne)</option>
-                <option [ngValue]="false">🔴 Inactif (Masqué)</option>
-              </select>
-            </div>
-          </div>
-          
-          @if (formError) {
-            <div class="error-msg shake">
-              <span class="material-icons-outlined">error</span> 
-              <span>{{ formError }}</span>
-            </div>
-          }
-        </div>
-        
-        <div class="modal-footer">
-          <button class="btn-ghost" (click)="showForm = false">Annuler</button>
-          <button class="btn-primary" (click)="saveProduct()" [disabled]="saving">
-            @if (saving) {
-              <span class="spinner-sm"></span> Enregistrement...
-            } @else {
-              <span class="material-icons-outlined">save</span> Enregistrer le produit
             }
-          </button>
+          </div>
         </div>
       </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="showForm = false">Annuler</button>
+        <button class="btn-primary" (click)="saveProduct()" [disabled]="saving">
+          @if (saving) {
+          <span class="spinner-sm"></span> Enregistrement...
+          } @else {
+          <span class="material-icons-outlined">save</span> Enregistrer le produit
+          }
+        </button>
+      </div>
     </div>
+  </div>
   }
 
   <!-- Products List Table -->
   <div class="table-card glass-card slide-up-delayed">
     <div class="table-container custom-scrollbar">
       @if (products.length === 0) {
-        <div class="empty-state">
-          <span class="material-icons-outlined empty-icon">inventory_2</span>
-          <p>Aucun produit enregistré pour le moment.</p>
-          <button class="btn-outline" (click)="showForm = true; resetForm()">Ajouter votre premier produit</button>
-        </div>
+      <div class="empty-state">
+        <span class="material-icons-outlined empty-icon">inventory_2</span>
+        <p>Aucun produit enregistré pour le moment.</p>
+        <button class="btn-outline" (click)="showForm = true; resetForm()">Ajouter votre premier produit</button>
+      </div>
       } @else {
-        <table class="modern-table">
-          <thead>
-            <tr>
-              <th>Détails Produit</th>
-              <th>Catégorie</th>
-              <th>Prix</th>
-              <th>Stock</th>
-              <th>Avis</th>
-              <th>État</th>
-              <th class="actions-th">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (product of products; track product.id) {
-              <tr class="table-row-hover">
-                <td>
-                  <div class="product-cell">
-                    <img [src]="getImage(product)" alt="" class="product-thumb">
-                    <div class="product-titles">
-                      <span class="product-name" [title]="product.title">{{ product.title }}</span>
-                      <span class="product-mfr">{{ product.manufacturer || 'Marque Inconnue' }}</span>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <span class="category-pill">{{ product.categoryName }}</span>
-                </td>
-                <td class="price-cell">{{ product.price | number:'1.2-2' }} <small>MAD</small></td>
-                <td>
-                  <div class="stock-indicator" [class.critical]="product.stockQuantity === 0" [class.warning]="product.stockQuantity > 0 && product.stockQuantity <= 10">
-                    <span class="dot"></span>
-                    <span>{{ product.stockQuantity }} en stock</span>
-                  </div>
-                </td>
-                <td>
-                  <div class="rating-badge">
-                    <span class="material-icons-outlined star">star</span>
-                    <span>{{ product.rating | number:'1.1-1' }}</span>
-                  </div>
-                </td>
-                <td>
-                  <span class="status-badge" [class.active-badge]="product.active" [class.inactive-badge]="!product.active">
-                    {{ product.active ? 'En Ligne' : 'Hors Ligne' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-btns">
-                    <button class="icon-btn edit-btn" (click)="editProduct(product)" title="Modifier ce produit">
-                      <span class="material-icons-outlined">edit</span>
-                    </button>
-                    <button class="icon-btn delete-btn" (click)="deleteProduct(product.id)" title="Retirer ce produit">
-                      <span class="material-icons-outlined">delete</span>
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <table class="modern-table">
+        <thead>
+          <tr>
+            <th>Détails Produit</th>
+            <th>Catégorie</th>
+            <th>Prix</th>
+            <th>Stock</th>
+            <th>Avis</th>
+            <th>État</th>
+            <th class="actions-th">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (product of products; track product.id) {
+          <tr class="table-row-hover">
+            <td>
+              <div class="product-cell">
+                <img [src]="getImage(product)" alt="" class="product-thumb">
+                <div class="product-titles">
+                  <span class="product-name" [title]="product.title">{{ product.title }}</span>
+                  <span class="product-mfr">{{ product.manufacturer || 'Marque Inconnue' }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="category-pill">{{ product.categoryName }}</span>
+            </td>
+            <td class="price-cell">{{ product.price | number:'1.2-2' }} <small>MAD</small></td>
+            <td>
+              <div class="stock-indicator" [class.critical]="product.stockQuantity === 0"
+                [class.warning]="product.stockQuantity > 0 && product.stockQuantity <= 10">
+                <span class="dot"></span>
+                <span>{{ product.stockQuantity }} en stock</span>
+              </div>
+            </td>
+            <td>
+              <div class="rating-badge">
+                <span class="material-icons-outlined star">star</span>
+                <span>{{ product.rating | number:'1.1-1' }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="status-badge" [class.active-badge]="product.active" [class.inactive-badge]="!product.active">
+                {{ product.active ? 'En Ligne' : 'Hors Ligne' }}
+              </span>
+            </td>
+            <td>
+              <div class="action-btns">
+                <button class="icon-btn edit-btn" (click)="editProduct(product)" title="Modifier ce produit">
+                  <span class="material-icons-outlined">edit</span>
+                </button>
+                <button class="icon-btn delete-btn" (click)="deleteProduct(product.id)" title="Retirer ce produit">
+                  <span class="material-icons-outlined">delete</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
       }
     </div>
 
     @if (totalPages > 1) {
-      <div class="table-pagination">
-        <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
-          <span class="material-icons-outlined">chevron_left</span> Précédent
-        </button>
-        <div class="page-info">
-          Page <span class="current">{{ currentPage + 1 }}</span> sur {{ totalPages }}
-        </div>
-        <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
-          Suivant <span class="material-icons-outlined">chevron_right</span>
-        </button>
+    <div class="table-pagination">
+      <button class="page-btn" [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+        <span class="material-icons-outlined">chevron_left</span> Précédent
+      </button>
+      <div class="page-info">
+        Page <span class="current">{{ currentPage + 1 }}</span> sur {{ totalPages }}
       </div>
+      <button class="page-btn" [disabled]="currentPage === totalPages - 1" (click)="goToPage(currentPage + 1)">
+        Suivant <span class="material-icons-outlined">chevron_right</span>
+      </button>
+    </div>
     }
   </div>
 </div>

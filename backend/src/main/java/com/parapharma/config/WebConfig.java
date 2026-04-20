@@ -13,7 +13,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        String absolutePath = new java.io.File(uploadDir).getAbsolutePath();
+        if (!absolutePath.endsWith("/") && !absolutePath.endsWith("\\")) {
+            absolutePath += "/";
+        }
         registry.addResourceHandler("/uploads/images/**")
-                .addResourceLocations("file:" + uploadDir + "/");
+                .addResourceLocations("file:" + absolutePath);
     }
 }

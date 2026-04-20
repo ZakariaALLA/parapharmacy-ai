@@ -137,4 +137,8 @@ export class ProductService {
     formData.append('file', file);
     return this.http.post<Product>(`${this.apiUrl}/${productId}/images?primary=${primary}`, formData);
   }
+
+  deleteImage(productId: number, imageId: number): Observable<Product> {
+    return this.http.delete<Product>(`${this.apiUrl}/${productId}/images/${imageId}`);
+  }
 }

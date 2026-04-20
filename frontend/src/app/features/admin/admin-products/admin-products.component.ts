@@ -27,7 +27,13 @@ export class AdminProductsComponent implements OnInit {
     stockQuantity: 0, rating: 0, active: true
   };
 
-  constructor(private productService: ProductService) {}
+  // Image management
+  selectedFile: File | null = null;
+  imagePreview: string | null = null;
+  uploading = false;
+  currentProductImages: any[] = [];
+
+  constructor(private productService: ProductService) { }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -45,11 +51,17 @@ export class AdminProductsComponent implements OnInit {
   resetForm(): void {
     this.editingId = null;
     this.formError = '';
+    this.selectedFile = null;
+    this.imagePreview = null;
+    this.currentProductImages = [];
     this.form = { title: '', price: 0, categoryId: null, manufacturer: '', description: '', usageTips: '', stockQuantity: 0, rating: 0, active: true };
   }
 
   editProduct(product: Product): void {
     this.editingId = product.id;
+    this.currentProductImages = [...(product.images || [])];
+    this.imagePreview = null;
+    this.selectedFile = null;
     this.form = {
       title: product.title, price: product.price, categoryId: product.categoryId,
       manufacturer: product.manufacturer, description: product.description,
@@ -57,6 +69,46 @@ export class AdminProductsComponent implements OnInit {
       rating: product.rating, active: product.active
     };
     this.showForm = true;
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = () => this.imagePreview = reader.result as string;
+      reader.readAsDataURL(file);
+    }
+  }
+
+  uploadImage(): void {
+    if (!this.selectedFile || !this.editingId) return;
+
+    this.uploading = true;
+    this.productService.uploadImage(this.editingId, this.selectedFile, this.currentProductImages.length === 0)
+      .subscribe({
+        next: (updatedProduct) => {
+          this.currentProductImages = updatedProduct.images;
+          this.selectedFile = null;
+          this.imagePreview = null;
+          this.uploading = false;
+          this.loadProducts();
+        },
+        error: (err) => {
+          this.uploading = false;
+          console.error('Image upload failed:', err);
+          alert(`Échec de l'upload: ${err.error?.error || 'Erreur serveur'}\nConsultez la console pour plus de détails.`);
+        }
+      });
+  }
+
+  deleteImage(imageId: number): void {
+    if (!this.editingId) return;
+
+    this.productService.deleteImage(this.editingId, imageId).subscribe((updatedProduct) => {
+      this.currentProductImages = updatedProduct.images;
+      this.loadProducts();
+    });
   }
 
   saveProduct(): void {
@@ -72,9 +124,36 @@ export class AdminProductsComponent implements OnInit {
       : this.productService.createProduct(this.form);
 
     obs.subscribe({
-      next: () => { this.saving = false; this.showForm = false; this.loadProducts(); },
-      error: (err) => { this.saving = false; this.formError = err.error?.error || 'Une erreur est survenue lors de l\'enregistrement.'; }
+      next: (product: Product) => {
+        // If we have a selected file and we are in creation mode
+        if (this.selectedFile && !this.editingId) {
+          this.productService.uploadImage(product.id, this.selectedFile, true).subscribe({
+            next: () => this.finalizeSave(),
+            error: (err) => {
+              this.saving = false;
+              console.error('Post-creation upload failed:', err);
+              this.formError = 'Produit créé mais erreur lors de l\'upload de l\'image: ' + (err.error?.error || 'Erreur inconnue');
+              alert(this.formError);
+            }
+          });
+        } else {
+          this.finalizeSave();
+        }
+      },
+      error: (err) => {
+        this.saving = false;
+        console.error('Error saving product:', err);
+        this.formError = err.error?.error || `Une erreur est survenue (Code: ${err.status}). Veuillez réessayer.`;
+        alert(`Erreur d'enregistrement: ${this.formError}`);
+      }
     });
+  }
+
+  private finalizeSave(): void {
+    this.saving = false;
+    this.showForm = false;
+    this.loadProducts();
+    this.resetForm();
   }
 
   deleteProduct(id: number): void {

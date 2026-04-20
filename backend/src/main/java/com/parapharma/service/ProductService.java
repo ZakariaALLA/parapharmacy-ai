@@ -12,6 +12,7 @@ import com.parapharma.repository.CategoryRepository;
 import com.parapharma.repository.ProductRepository;
 import com.parapharma.repository.ProductSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,18 +26,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    private final FileStorageService fileStorageService;
 
     @Transactional(readOnly = true)
     public Page<ProductDTO> getProducts(ProductFilterDTO filter) {
         Sort sort = Sort.by(
                 filter.getSortDir().equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC,
-                filter.getSortBy()
-        );
+                filter.getSortBy());
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize(), sort);
 
         Page<Product> products = productRepository.findAll(
@@ -47,9 +49,8 @@ public class ProductService {
                         filter.getMinPrice(),
                         filter.getMaxPrice(),
                         filter.getMinRating(),
-                        filter.getInStock()
-                ), pageable
-        );
+                        filter.getInStock()),
+                pageable);
 
         return products.map(productMapper::toDTO);
     }
@@ -157,8 +158,14 @@ public class ProductService {
     }
 
     public ProductDTO addImageToProduct(Long productId, String imageUrl, boolean isPrimary) {
+        log.info("Liaison de l'image {} au produit ID: {} (Primaire: {})", imageUrl, productId, isPrimary);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Produit", "id", productId));
+
+        if (isPrimary) {
+            log.debug("Réinitialisation des images primaires pour le produit : {}", productId);
+            product.getImages().forEach(img -> img.setIsPrimary(false));
+        }
 
         ProductImage image = ProductImage.builder()
                 .imageUrl(imageUrl)
@@ -168,6 +175,26 @@ public class ProductService {
 
         product.addImage(image);
         Product saved = productRepository.save(product);
+        log.info("Image ajoutée avec succès. Nombre total d'images : {}", saved.getImages().size());
+        return productMapper.toDTO(saved);
+    }
+
+    public ProductDTO removeImageFromProduct(Long productId, Long imageId) {
+        log.info("Suppression de l'image ID: {} du produit ID: {}", imageId, productId);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Produit", "id", productId));
+
+        ProductImage imageToRemove = product.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Image", "id", imageId));
+
+        // Delete the physical file from disk
+        fileStorageService.deleteFile(imageToRemove.getImageUrl());
+
+        product.removeImage(imageToRemove);
+        Product saved = productRepository.save(product);
+        log.info("Image supprimée de la base de données. ID: {}", imageId);
         return productMapper.toDTO(saved);
     }
 
