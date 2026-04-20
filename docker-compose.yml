@@ -37,10 +37,13 @@ services:
       UPLOAD_DIR: /uploads/images
     volumes:
       - uploads_data:/uploads/images
-    depends_on:
-      db:
-        condition: service_healthy
     restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ./backend/src
+        - action: rebuild
+          path: ./backend/pom.xml
 
   # Angular Frontend + Nginx
   frontend:
@@ -51,6 +54,10 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    develop:
+      watch:
+        - action: rebuild
+          path: ./frontend/src
 
 volumes:
   postgres_data:
