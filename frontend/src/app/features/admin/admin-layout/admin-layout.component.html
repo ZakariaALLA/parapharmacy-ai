@@ -1,34 +1,56 @@
 <div class="admin-layout">
-  <aside class="admin-sidebar">
-    <div class="sidebar-brand">
+  <!-- Mobile Header -->
+  <header class="admin-mobile-header">
+    <button class="menu-toggle" (click)="toggleSidebar()" aria-label="Open Menu">
+      <span class="material-icons-outlined">menu</span>
+    </button>
+    <div class="mobile-brand">
       <span class="logo-icon">💊</span>
-      <div>
-        <span class="brand-name">ParaPharma</span>
-        <span class="brand-sub">Administration</span>
+      <span class="brand-name">ParaPharma Admin</span>
+    </div>
+  </header>
+
+  <!-- Sidebar Backdrop -->
+  @if (isSidebarOpen) {
+  <div class="sidebar-backdrop" (click)="closeSidebar()"></div>
+  }
+
+  <aside class="admin-sidebar" [class.open]="isSidebarOpen">
+    <div class="sidebar-brand">
+      <div class="brand-content">
+        <span class="logo-icon">💊</span>
+        <div>
+          <span class="brand-name">ParaPharma</span>
+          <span class="brand-sub">Administration</span>
+        </div>
       </div>
+      <button class="sidebar-close" (click)="closeSidebar()" aria-label="Close Menu">
+        <span class="material-icons-outlined">close</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item">
+      <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" class="nav-item"
+        (click)="closeSidebar()">
         <span class="material-icons-outlined">dashboard</span>
         Tableau de bord
       </a>
-      <a routerLink="/admin/produits" routerLinkActive="active" class="nav-item">
+      <a routerLink="/admin/produits" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <span class="material-icons-outlined">inventory_2</span>
         Produits
       </a>
-      <a routerLink="/admin/commandes" routerLinkActive="active" class="nav-item">
+      <a routerLink="/admin/commandes" routerLinkActive="active" class="nav-item" (click)="closeSidebar()">
         <span class="material-icons-outlined">receipt_long</span>
         Commandes
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <a routerLink="/" class="nav-item">
+      <a routerLink="/" class="nav-item" (click)="closeSidebar()">
         <span class="material-icons-outlined">storefront</span>
         Voir la boutique
       </a>
-      <button class="nav-item logout" (click)="auth.logout()">
+      <button class="nav-item logout" (click)="auth.logout(); closeSidebar()">
         <span class="material-icons-outlined">logout</span>
         Déconnexion
       </button>

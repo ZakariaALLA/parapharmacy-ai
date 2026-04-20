@@ -11,5 +11,15 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './admin-layout.component.css'
 })
 export class AdminLayoutComponent {
+  isSidebarOpen = false;
+
   constructor(public auth: AuthService) { }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  closeSidebar() {
+    this.isSidebarOpen = false;
+  }
 }
