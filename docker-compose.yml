@@ -34,9 +34,9 @@ services:
       DB_PASSWORD: parapharma_secret_2024
       JWT_SECRET: YourSuperSecretKeyForJWT2024ParaPharmaMaroc256BitKey!!
       JWT_EXPIRATION: 86400000
-      UPLOAD_DIR: /uploads/images
+      APP_UPLOAD_DIR: /app/uploads/images
     volumes:
-      - uploads_data:/uploads/images
+      - uploads_data:/app/uploads/images
     restart: unless-stopped
     develop:
       watch:
