@@ -91,7 +91,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @org.springframework.beans.factory.annotation.Value("${ALLOWED_ORIGINS:http://localhost:4200,http://localhost:80,http://localhost}")
+    @org.springframework.beans.factory.annotation.Value("${ALLOWED_ORIGINS:http://localhost:4200,http://localhost:80,http://localhost,https://parapharmacy-front.onrender.com}")
     private String allowedOrigins;
 
     @Bean
