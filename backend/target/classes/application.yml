@@ -40,7 +40,7 @@ spring:
       mode: always
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
   jwt:
@@ -75,7 +75,7 @@ spring:
       mode: always
 
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 app:
   jwt:
