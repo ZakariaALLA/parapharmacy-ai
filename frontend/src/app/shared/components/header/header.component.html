@@ -79,6 +79,22 @@
   <!-- Nav -->
   <nav class="nav" [class.open]="mobileMenuOpen">
     <div class="container nav-inner">
+      <!-- Mobile Search -->
+      <div class="mobile-search-bar">
+        <span class="material-icons-outlined search-icon">search</span>
+        <input
+          type="text"
+          placeholder="Rechercher un produit..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch(); mobileMenuOpen = false;"
+        />
+        @if (searchQuery) {
+          <button class="search-clear" (click)="searchQuery = ''">
+            <span class="material-icons">close</span>
+          </button>
+        }
+      </div>
+
       <a routerLink="/produits" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Tous les produits</a>
       <a routerLink="/produits" [queryParams]="{categoryId: 1}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Dermo-Cosmétiques</a>
       <a routerLink="/produits" [queryParams]="{categoryId: 2}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Compléments</a>

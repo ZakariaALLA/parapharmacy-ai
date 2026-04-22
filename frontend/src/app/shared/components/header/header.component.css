@@ -179,6 +179,9 @@
   background: var(--white);
   border-top: 1px solid var(--grey-100);
 }
+.mobile-search-bar {
+  display: none;
+}
 .nav-inner {
   display: flex;
   gap: 0;
@@ -220,6 +223,38 @@
   }
   .nav.open { display: block; }
   .nav-inner { flex-direction: column; }
+  
+  .mobile-search-bar {
+    display: flex;
+    position: relative;
+    padding: 12px 20px;
+    align-items: center;
+    border-bottom: 1px solid var(--grey-100);
+  }
+  .mobile-search-bar input {
+    width: 100%;
+    padding: 10px 40px 10px 42px;
+    border: 2px solid var(--grey-200);
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    background: var(--bg-light);
+  }
+  .mobile-search-bar .search-icon {
+    position: absolute;
+    left: 34px;
+    color: var(--grey-400);
+    font-size: 20px;
+  }
+  .mobile-search-bar .search-clear {
+    position: absolute;
+    right: 34px;
+    background: none;
+    border: none;
+    color: var(--grey-400);
+    padding: 4px;
+    border-radius: 50%;
+  }
+
   .nav-link {
     padding: 12px 20px;
     border-bottom: none;
