@@ -3,6 +3,7 @@ package com.parapharma.controller;
 import com.parapharma.dto.AuthRequestDTO;
 import com.parapharma.dto.AuthResponseDTO;
 import com.parapharma.dto.RegisterDTO;
+import com.parapharma.dto.UserUpdateDTO;
 import com.parapharma.entity.User;
 import com.parapharma.service.AuthService;
 import jakarta.validation.Valid;
@@ -38,7 +39,26 @@ public class AuthController {
                 "email", user.getEmail(),
                 "fullName", user.getFullName(),
                 "phone", user.getPhone() != null ? user.getPhone() : "",
-                "role", user.getRole().name()
-        ));
+                "address", user.getAddress() != null ? user.getAddress() : "",
+                "city", user.getCity() != null ? user.getCity() : "",
+                "zipCode", user.getZipCode() != null ? user.getZipCode() : "",
+                "role", user.getRole().name()));
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<Map<String, Object>> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody UserUpdateDTO dto) {
+        User user = authService.updateProfile(authentication.getName(), dto);
+        return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "email", user.getEmail(),
+                "fullName", user.getFullName(),
+                "phone", user.getPhone() != null ? user.getPhone() : "",
+                "address", user.getAddress() != null ? user.getAddress() : "",
+                "city", user.getCity() != null ? user.getCity() : "",
+                "zipCode", user.getZipCode() != null ? user.getZipCode() : "",
+                "role", user.getRole().name(),
+                "message", "Profil mis à jour avec succès"));
     }
 }

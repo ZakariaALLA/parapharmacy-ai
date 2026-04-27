@@ -3,6 +3,7 @@ package com.parapharma.service;
 import com.parapharma.dto.AuthRequestDTO;
 import com.parapharma.dto.AuthResponseDTO;
 import com.parapharma.dto.RegisterDTO;
+import com.parapharma.dto.UserUpdateDTO;
 import com.parapharma.entity.User;
 import com.parapharma.repository.UserRepository;
 import com.parapharma.security.JwtTokenProvider;
@@ -67,5 +68,37 @@ public class AuthService {
     public User getCurrentUser(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+    }
+
+    public User updateProfile(String currentEmail, UserUpdateDTO dto) {
+        User user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur introuvable"));
+
+        // Check if email is being changed and if new email is already in use
+        if (!user.getEmail().equals(dto.getEmail()) && userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Cet email est déjà utilisé");
+        }
+
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        user.setPhone(dto.getPhone());
+        user.setAddress(dto.getAddress());
+        user.setCity(dto.getCity());
+        user.setZipCode(dto.getZipCode());
+
+        // Handle password change if requested
+        if (dto.getNewPassword() != null && !dto.getNewPassword().isBlank()) {
+            if (dto.getCurrentPassword() == null || dto.getCurrentPassword().isBlank()) {
+                throw new IllegalArgumentException("Le mot de passe actuel est requis pour changer le mot de passe");
+            }
+
+            if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+                throw new IllegalArgumentException("Le mot de passe actuel est incorrect");
+            }
+
+            user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        }
+
+        return userRepository.save(user);
     }
 }

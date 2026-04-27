@@ -16,6 +16,9 @@ export interface User {
   email: string;
   fullName: string;
   phone: string;
+  address?: string;
+  city?: string;
+  zipCode?: string;
   role: string;
 }
 
@@ -51,6 +54,34 @@ export class AuthService {
     this.router.navigate(['/']);
   }
 
+  getMe(): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/me`).pipe(
+      tap(user => {
+        localStorage.setItem('pp_user', JSON.stringify(user));
+        this.currentUser.set(user);
+      })
+    );
+  }
+
+  updateProfile(data: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/profile`, data).pipe(
+      tap(res => {
+        const user: User = {
+          id: res.id,
+          email: res.email,
+          fullName: res.fullName,
+          phone: res.phone,
+          address: res.address,
+          city: res.city,
+          zipCode: res.zipCode,
+          role: res.role
+        };
+        localStorage.setItem('pp_user', JSON.stringify(user));
+        this.currentUser.set(user);
+      })
+    );
+  }
+
   isLoggedIn(): boolean {
     return !!localStorage.getItem('pp_token');
   }
@@ -71,6 +102,9 @@ export class AuthService {
       email: res.email,
       fullName: res.fullName,
       phone: '',
+      address: '',
+      city: '',
+      zipCode: '',
       role: res.role
     };
     localStorage.setItem('pp_user', JSON.stringify(user));

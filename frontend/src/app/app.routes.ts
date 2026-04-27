@@ -40,6 +40,12 @@ export const routes: Routes = [
     title: 'Commander - ParaPharma Maroc'
   },
   {
+    path: 'profil',
+    loadComponent: () => import('./features/profile/profile.component').then(m => m.ProfileComponent),
+    canActivate: [authGuard],
+    title: 'Mon Profil - ParaPharma Maroc'
+  },
+  {
     path: 'connexion',
     loadComponent: () => import('./features/auth/login/login.component').then(m => m.LoginComponent),
     title: 'Connexion - ParaPharma Maroc'

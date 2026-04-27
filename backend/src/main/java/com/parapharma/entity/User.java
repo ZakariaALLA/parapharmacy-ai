@@ -25,6 +25,9 @@ public class User {
     private String fullName;
 
     private String phone;
+    private String address;
+    private String city;
+    private String zipCode;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -1,0 +1,150 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <div class="profile-header">
+      <h1>Mon Profil</h1>
+      <p>Gérez vos informations personnelles et votre compte</p>
+    </div>
+
+    <!-- Informations Personnelles Section -->
+    <div class="profile-section">
+      <div class="section-header">
+        <span class="material-icons-outlined">person</span>
+        <h3>Informations Personnelles</h3>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()" class="profile-form">
+        <div *ngIf="profileMessage()" [class]="'alert ' + profileMessage()?.type">
+          {{ profileMessage()?.text }}
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullName">Nom Complet</label>
+            <input type="text" id="fullName" formControlName="fullName" placeholder="Votre nom complet">
+            <div *ngIf="profileForm.get('fullName')?.touched && profileForm.get('fullName')?.errors?.['required']"
+              class="error-text">
+              Le nom complet est obligatoire
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" placeholder="votre@email.com">
+            <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['required']"
+              class="error-text">
+              L'email est obligatoire
+            </div>
+            <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.errors?.['email']"
+              class="error-text">
+              L'email doit être valide
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Téléphone</label>
+            <input type="text" id="phone" formControlName="phone" placeholder="06XXXXXXXX">
+            <div *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.errors?.['required']"
+              class="error-text">
+              Le téléphone est obligatoire
+            </div>
+            <div *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.errors?.['pattern']"
+              class="error-text">
+              Format invalide (Ex: 0612345678)
+            </div>
+          </div>
+        </div>
+
+        <div class="form-grid mt-4">
+          <div class="form-group full-width">
+            <label for="address">Adresse de livraison</label>
+            <input type="text" id="address" formControlName="address" placeholder="Rue, N°, Appartement...">
+            <div *ngIf="profileForm.get('address')?.touched && profileForm.get('address')?.errors?.['required']"
+              class="error-text">
+              L'adresse est obligatoire pour vos commandes
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="city">Ville</label>
+            <select id="city" formControlName="city">
+              <option value="">Sélectionnez une ville</option>
+              <option *ngFor="let city of cities" [value]="city">{{city}}</option>
+            </select>
+            <div *ngIf="profileForm.get('city')?.touched && profileForm.get('city')?.errors?.['required']"
+              class="error-text">
+              La ville est obligatoire
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="zipCode">Code Postal</label>
+            <input type="text" id="zipCode" formControlName="zipCode" placeholder="20000">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="profileForm.invalid || loadingProfile()" class="btn-submit">
+            <span *ngIf="!loadingProfile()">Enregistrer les modifications</span>
+            <span *ngIf="loadingProfile()" class="loader"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <div class="form-separator"></div>
+
+    <!-- Sécurité Section -->
+    <div class="profile-section">
+      <div class="section-header">
+        <span class="material-icons-outlined">lock</span>
+        <h3>Sécurité</h3>
+      </div>
+
+      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="profile-form">
+        <div *ngIf="passwordMessage()" [class]="'alert ' + passwordMessage()?.type">
+          {{ passwordMessage()?.text }}
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="currentPassword">Mot de passe actuel</label>
+            <input type="password" id="currentPassword" formControlName="currentPassword" placeholder="••••••••">
+            <div *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.errors?.['required']"
+              class="error-text">
+              Le mot de passe actuel est requis
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="newPassword">Nouveau mot de passe</label>
+            <input type="password" id="newPassword" formControlName="newPassword" placeholder="••••••••">
+            <div *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['required']"
+              class="error-text">
+              Le nouveau mot de passe est requis
+            </div>
+            <div
+              *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.errors?.['minlength']"
+              class="error-text">
+              Minimum 6 caractères
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+            <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="••••••••">
+            <div *ngIf="passwordForm.errors?.['mismatch'] && passwordForm.get('confirmPassword')?.touched" class="error-text">
+              Les mots de passe ne correspondent pas
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" [disabled]="passwordForm.invalid || loadingPassword()" class="btn-submit btn-secondary">
+            <span *ngIf="!loadingPassword()">Changer le mot de passe</span>
+            <span *ngIf="loadingPassword()" class="loader"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
