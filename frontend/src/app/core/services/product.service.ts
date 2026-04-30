@@ -19,6 +19,17 @@ export interface Product {
   stockQuantity: number;
   active: boolean;
   createdAt: string;
+  reviewCount?: number;
+}
+
+export interface Review {
+  id: number;
+  productId: number;
+  userId: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }
 
 export interface ProductImage {
@@ -140,5 +151,14 @@ export class ProductService {
 
   deleteImage(productId: number, imageId: number): Observable<Product> {
     return this.http.delete<Product>(`${this.apiUrl}/${productId}/images/${imageId}`);
+  }
+
+  // Reviews
+  getProductReviews(productId: number): Observable<Review[]> {
+    return this.http.get<Review[]>(`${this.apiUrl}/${productId}/reviews`);
+  }
+
+  addReview(productId: number, rating: number, comment: string): Observable<Review> {
+    return this.http.post<Review>(`${this.apiUrl}/${productId}/reviews`, { rating, comment });
   }
 }

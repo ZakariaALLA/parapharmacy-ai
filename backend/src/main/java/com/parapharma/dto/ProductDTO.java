@@ -24,6 +24,7 @@ public class ProductDTO {
     private Integer stockQuantity;
     private Boolean active;
     private LocalDateTime createdAt;
+    private Integer reviewCount;
 
     @Getter @Setter
     @NoArgsConstructor @AllArgsConstructor

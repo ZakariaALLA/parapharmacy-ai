@@ -30,6 +30,7 @@ public class ProductMapper {
                 .stockQuantity(product.getStockQuantity())
                 .active(product.getActive())
                 .createdAt(product.getCreatedAt())
+                .reviewCount(product.getReviewCount() != null ? product.getReviewCount() : 0)
                 .build();
     }
 

@@ -9,14 +9,16 @@ import java.util.List;
 
 @Entity
 @Table(name = "products", indexes = {
-    @Index(name = "idx_product_slug", columnList = "slug", unique = true),
-    @Index(name = "idx_product_category", columnList = "category_id"),
-    @Index(name = "idx_product_manufacturer", columnList = "manufacturer"),
-    @Index(name = "idx_product_price", columnList = "price"),
-    @Index(name = "idx_product_title", columnList = "title")
+        @Index(name = "idx_product_slug", columnList = "slug", unique = true),
+        @Index(name = "idx_product_category", columnList = "category_id"),
+        @Index(name = "idx_product_manufacturer", columnList = "manufacturer"),
+        @Index(name = "idx_product_price", columnList = "price"),
+        @Index(name = "idx_product_title", columnList = "title")
 })
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Product {
 
@@ -64,6 +66,10 @@ public class Product {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "review_count", columnDefinition = "integer default 0")
+    @Builder.Default
+    private Integer reviewCount = 0;
 
     @PrePersist
     protected void onCreate() {

@@ -38,7 +38,7 @@
           @for (s of [1,2,3,4,5]; track s) {
             <span class="material-icons" [style.color]="s <= product.rating ? '#FBBF24' : '#D1D5DB'">star</span>
           }
-          <span class="rating-text">{{ product.rating | number:'1.1-1' }} / 5</span>
+          <span class="rating-text">{{ product.rating | number:'1.1-1' }} / 5 ({{ product.reviewCount || 0 }} avis)</span>
         </div>
 
         <div class="product-price">
@@ -93,6 +93,85 @@
         </div>
       </div>
     </div>
+
+    <!-- Reviews Section -->
+    <section class="reviews-section">
+      <div class="reviews-header">
+        <h2>Avis Clients</h2>
+        <div class="overall-rating">
+          <span class="score">{{ product.rating | number:'1.1-1' }}</span>
+          <div class="stars">
+            @for (s of [1,2,3,4,5]; track s) {
+              <span class="material-icons" [style.color]="s <= product.rating ? '#FBBF24' : '#D1D5DB'">star</span>
+            }
+          </div>
+          <span class="count">{{ product.reviewCount || 0 }} avis</span>
+        </div>
+      </div>
+
+      <div class="reviews-content">
+        <!-- Review List -->
+        <div class="reviews-list">
+          @if (reviews.length === 0) {
+            <p class="no-reviews">Aucun avis pour le moment. Soyez le premier à donner votre avis !</p>
+          } @else {
+            @for (review of reviews; track review.id) {
+              <div class="review-card">
+                <div class="review-card-header">
+                  <div class="reviewer-info">
+                    <span class="material-icons-outlined avatar-icon">account_circle</span>
+                    <div>
+                      <strong>{{ review.userName }}</strong>
+                      <span class="review-date">{{ review.createdAt | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                  </div>
+                  <div class="review-stars">
+                    @for (s of [1,2,3,4,5]; track s) {
+                      <span class="material-icons" [style.color]="s <= review.rating ? '#FBBF24' : '#D1D5DB'" style="font-size: 16px;">star</span>
+                    }
+                  </div>
+                </div>
+                <p class="review-text">{{ review.comment }}</p>
+              </div>
+            }
+          }
+        </div>
+
+        <!-- Add Review Form -->
+        <div class="add-review-box">
+          <h3>Laisser un avis</h3>
+          @if (auth.isLoggedIn()) {
+            <form (submit)="submitReview(); $event.preventDefault()">
+              <div class="form-group">
+                <label>Votre note</label>
+                <div class="rating-input">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <span class="material-icons star-hover" 
+                          [style.color]="s <= reviewRating ? '#FBBF24' : '#D1D5DB'"
+                          (click)="reviewRating = s">star</span>
+                  }
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Votre commentaire</label>
+                <textarea rows="4" [(ngModel)]="reviewComment" name="comment" placeholder="Partagez votre expérience avec ce produit..." required></textarea>
+              </div>
+              @if (reviewError) {
+                <div class="error-msg">{{ reviewError }}</div>
+              }
+              <button type="submit" class="btn-primary" [disabled]="submittingReview || !reviewComment.trim()">
+                {{ submittingReview ? 'Envoi...' : 'Envoyer mon avis' }}
+              </button>
+            </form>
+          } @else {
+            <div class="login-prompt">
+              <p>Vous devez être connecté pour laisser un avis.</p>
+              <a routerLink="/connexion" class="btn-outline">Se connecter</a>
+            </div>
+          }
+        </div>
+      </div>
+    </section>
 
     <!-- Related Products -->
     @if (relatedProducts.length > 0) {
