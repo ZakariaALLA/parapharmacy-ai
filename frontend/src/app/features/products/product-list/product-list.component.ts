@@ -35,13 +35,19 @@ export class ProductListComponent implements OnInit {
     this.productService.getManufacturers().subscribe(m => this.manufacturers = m);
 
     this.route.queryParams.subscribe(params => {
-      if (params['keyword']) this.filter.keyword = params['keyword'];
-      if (params['categoryId']) this.filter.categoryId = +params['categoryId'];
+      this.filter.keyword = params['keyword'] ? params['keyword'] : undefined;
+      this.filter.categoryId = params['categoryId'] ? +params['categoryId'] : undefined;
+      
       if (params['sortBy']) {
         this.filter.sortBy = params['sortBy'];
         this.filter.sortDir = params['sortDir'] || 'desc';
         this.sortValue = `${this.filter.sortBy}-${this.filter.sortDir}`;
+      } else {
+        this.filter.sortBy = undefined;
+        this.filter.sortDir = undefined;
+        this.sortValue = 'createdAt-desc';
       }
+      
       this.loadProducts();
     });
   }

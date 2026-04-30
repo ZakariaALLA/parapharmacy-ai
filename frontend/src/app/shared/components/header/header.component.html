@@ -99,7 +99,7 @@
         }
       </div>
 
-      <a routerLink="/produits" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Tous les produits</a>
+      <a routerLink="/produits" [routerLinkActiveOptions]="{exact: true}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Tous les produits</a>
       <a routerLink="/produits" [queryParams]="{categoryId: 1}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Dermo-Cosmétiques</a>
       <a routerLink="/produits" [queryParams]="{categoryId: 2}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Compléments</a>
       <a routerLink="/produits" [queryParams]="{categoryId: 3}" routerLinkActive="active" (click)="mobileMenuOpen = false" class="nav-link">Hygiène</a>

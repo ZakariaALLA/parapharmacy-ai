@@ -4,7 +4,6 @@ import com.parapharma.dto.CategoryDTO;
 import com.parapharma.entity.Category;
 import com.parapharma.exception.ResourceNotFoundException;
 import com.parapharma.repository.CategoryRepository;
-import com.parapharma.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
-    private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
     public List<CategoryDTO> getAllCategories() {
