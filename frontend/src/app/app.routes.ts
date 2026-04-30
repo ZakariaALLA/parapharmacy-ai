@@ -78,6 +78,31 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'a-propos',
+    loadComponent: () => import('./features/infos/about/about.component').then(m => m.AboutComponent),
+    title: 'À Propos - ParaPharma Maroc'
+  },
+  {
+    path: 'livraison',
+    loadComponent: () => import('./features/infos/shipping/shipping.component').then(m => m.ShippingComponent),
+    title: 'Livraison & Retours - ParaPharma Maroc'
+  },
+  {
+    path: 'conditions',
+    loadComponent: () => import('./features/infos/terms/terms.component').then(m => m.TermsComponent),
+    title: 'Conditions Générales - ParaPharma Maroc'
+  },
+  {
+    path: 'confidentialite',
+    loadComponent: () => import('./features/infos/privacy/privacy.component').then(m => m.PrivacyComponent),
+    title: 'Politique de Confidentialité - ParaPharma Maroc'
+  },
+  {
+    path: 'faq',
+    loadComponent: () => import('./features/infos/faq/faq.component').then(m => m.FaqComponent),
+    title: 'FAQ - ParaPharma Maroc'
+  },
+  {
     path: '**',
     redirectTo: ''
   }
