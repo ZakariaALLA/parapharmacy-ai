@@ -74,6 +74,11 @@ export const routes: Routes = [
         path: 'commandes',
         loadComponent: () => import('./features/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent),
         title: 'Gestion Commandes - Admin'
+      },
+      {
+        path: 'avis',
+        loadComponent: () => import('./features/admin/admin-reviews/admin-reviews.component').then(m => m.AdminReviewsComponent),
+        title: 'Gestion des Avis - Admin'
       }
     ]
   },

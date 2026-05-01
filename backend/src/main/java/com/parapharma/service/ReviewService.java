@@ -66,12 +66,41 @@ public class ReviewService {
         return toDTO(savedReview);
     }
 
+    public List<ReviewDTO> getAllReviews() {
+        return reviewRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new ResourceNotFoundException("Avis", "id", reviewId));
+        
+        Product product = review.getProduct();
+        int oldReviewCount = product.getReviewCount() != null ? product.getReviewCount() : 0;
+        double oldRating = product.getRating() != null ? product.getRating() : 0.0;
+        
+        int newReviewCount = Math.max(0, oldReviewCount - 1);
+        double newRating = 0.0;
+        if (newReviewCount > 0) {
+            newRating = ((oldRating * oldReviewCount) - review.getRating()) / newReviewCount;
+        }
+        
+        product.setReviewCount(newReviewCount);
+        product.setRating(Math.round(newRating * 10.0) / 10.0);
+        productRepository.save(product);
+        
+        reviewRepository.delete(review);
+    }
+
     private ReviewDTO toDTO(Review review) {
         return ReviewDTO.builder()
                 .id(review.getId())
-                .productId(review.getProduct().getId())
-                .userId(review.getUser().getId())
-                .userName(review.getUser().getFullName())
+                .productId(review.getProduct() != null ? review.getProduct().getId() : null)
+                .productName(review.getProduct() != null ? review.getProduct().getTitle() : null)
+                .userId(review.getUser() != null ? review.getUser().getId() : null)
+                .userName(review.getUser() != null ? review.getUser().getFullName() : null)
                 .rating(review.getRating())
                 .comment(review.getComment())
                 .createdAt(review.getCreatedAt())

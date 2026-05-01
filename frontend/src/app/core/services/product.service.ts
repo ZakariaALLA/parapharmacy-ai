@@ -25,6 +25,7 @@ export interface Product {
 export interface Review {
   id: number;
   productId: number;
+  productName?: string;
   userId: number;
   userName: string;
   rating: number;
@@ -77,7 +78,7 @@ export class ProductService {
   private apiUrl = `${environment.apiUrl}/products`;
   private catUrl = `${environment.apiUrl}/categories`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getProducts(filter: ProductFilter = {}): Observable<ProductPage> {
     let params = new HttpParams();
@@ -160,5 +161,14 @@ export class ProductService {
 
   addReview(productId: number, rating: number, comment: string): Observable<Review> {
     return this.http.post<Review>(`${this.apiUrl}/${productId}/reviews`, { rating, comment });
+  }
+
+  // Admin Reviews
+  getAllReviews(): Observable<Review[]> {
+    return this.http.get<Review[]>(`${environment.apiUrl}/admin/reviews`);
+  }
+
+  deleteReviewAdmin(id: number): Observable<void> {
+    return this.http.delete<void>(`${environment.apiUrl}/admin/reviews/${id}`);
   }
 }

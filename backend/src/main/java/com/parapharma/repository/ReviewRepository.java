@@ -12,6 +12,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
 
     List<Review> findByProductIdOrderByCreatedAtDesc(Long productId);
 
+    List<Review> findAllByOrderByCreatedAtDesc();
+
     boolean existsByUserIdAndProductId(Long userId, Long productId);
 
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.product.id = :productId")

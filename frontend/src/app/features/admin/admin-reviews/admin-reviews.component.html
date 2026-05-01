@@ -1,0 +1,90 @@
+<div class="admin-header">
+  <div>
+    <h1 class="page-title">Gestion des Avis</h1>
+    <p class="page-subtitle">Consultez et modérez les avis clients sur vos produits.</p>
+  </div>
+</div>
+
+<div class="reviews-container">
+  @if (loading) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Chargement des avis...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-message">
+      <span class="material-icons-outlined">error_outline</span>
+      {{ error }}
+    </div>
+  } @else if (reviews.length === 0) {
+    <div class="empty-state">
+      <span class="material-icons-outlined empty-icon">forum</span>
+      <h3>Aucun avis</h3>
+      <p>Il n'y a pas encore d'avis sur vos produits.</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Client</th>
+            <th>Note</th>
+            <th>Commentaire</th>
+            <th>Date</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (review of reviews; track review.id) {
+            <tr>
+              <td>
+                <div class="product-info">
+                  <span class="product-name" [title]="review.productName || 'Produit inconnu'">
+                    {{ (review.productName && review.productName.length > 40) ? (review.productName | slice:0:40) + '...' : (review.productName || 'Produit #' + review.productId) }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div class="user-info">
+                  <span class="user-name">{{ review.userName }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="rating-stars">
+                  @for (star of getStars(review.rating); track $index) {
+                    <span class="material-icons star-filled">star</span>
+                  }
+                  @for (star of getEmptyStars(review.rating); track $index) {
+                    <span class="material-icons star-empty">star_border</span>
+                  }
+                </div>
+              </td>
+              <td>
+                <p class="comment-text" [title]="review.comment">
+                  {{ (review.comment && review.comment.length > 60) ? (review.comment | slice:0:60) + '...' : review.comment }}
+                </p>
+              </td>
+              <td class="date-cell">
+                {{ review.createdAt | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+              <td class="actions-cell">
+                <button 
+                  class="action-btn delete-btn" 
+                  (click)="deleteReview(review.id)"
+                  [disabled]="deletingReviewId === review.id"
+                  title="Supprimer l'avis">
+                  @if (deletingReviewId === review.id) {
+                    <div class="btn-spinner"></div>
+                  } @else {
+                    <span class="material-icons-outlined">delete_outline</span>
+                  }
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
