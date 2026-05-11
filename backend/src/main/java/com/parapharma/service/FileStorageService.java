@@ -1,66 +1,97 @@
 package com.parapharma.service;
 
-import jakarta.annotation.PostConstruct;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
+import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class FileStorageService {
 
-    @Value("${app.upload.dir}")
-    private String uploadDir;
+    private final Cloudinary cloudinary;
 
-    @PostConstruct
-    public void init() {
-        Path path = Paths.get(uploadDir).toAbsolutePath();
-        try {
-            Files.createDirectories(path);
-            log.info("Répertoire d'upload initialisé à : {}", path);
-        } catch (IOException e) {
-            log.error("Erreur lors de la création du répertoire d'upload : {}", path, e);
-            throw new RuntimeException("Impossible de créer le répertoire d'upload", e);
-        }
-    }
-
+    /**
+     * Uploads a file to Cloudinary and returns the secure HTTPS URL.
+     * Images are stored in the "parapharma/products" folder on Cloudinary.
+     */
     public String storeFile(MultipartFile file) {
         try {
-            String originalFileName = file.getOriginalFilename();
-            String extension = "";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            }
+            log.info("Envoi de l'image '{}' vers Cloudinary...", file.getOriginalFilename());
 
-            String fileName = UUID.randomUUID().toString() + extension;
-            Path targetLocation = Paths.get(uploadDir).toAbsolutePath().resolve(fileName);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "parapharma/products",
+                            "resource_type", "image"
+                    )
+            );
 
-            log.info("Stockage du fichier : {} vers {}", originalFileName, targetLocation);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            String secureUrl = (String) result.get("secure_url");
+            log.info("Image uploadée avec succès : {}", secureUrl);
+            return secureUrl;
 
-            return "/uploads/images/" + fileName;
         } catch (IOException e) {
-            log.error("Erreur lors du stockage du fichier", e);
-            throw new RuntimeException("Impossible de stocker le fichier", e);
+            log.error("Erreur lors de l'upload de l'image vers Cloudinary", e);
+            throw new RuntimeException("Impossible d'uploader l'image", e);
         }
     }
 
-    public void deleteFile(String fileUrl) {
-        try {
-            String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-            Path filePath = Paths.get(uploadDir).toAbsolutePath().resolve(fileName);
-            log.info("Suppression du fichier : {}", filePath);
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            log.warn("Impossible de supprimer le fichier physique : {}", fileUrl);
+    /**
+     * Deletes an image from Cloudinary by extracting its public_id from the URL.
+     * Cloudinary URLs follow the pattern:
+     *   https://res.cloudinary.com/<cloud>/image/upload/v<version>/<folder>/<public_id>.<ext>
+     */
+    public void deleteFile(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return;
         }
+        try {
+            // Extract public_id: everything after "/upload/" and before the file extension
+            String publicId = extractPublicId(imageUrl);
+            log.info("Suppression de l'image Cloudinary : {}", publicId);
+
+            @SuppressWarnings("unchecked")
+            Map<String, Object> result = cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
+            log.info("Résultat de la suppression : {}", result.get("result"));
+
+        } catch (IOException e) {
+            log.warn("Impossible de supprimer l'image Cloudinary : {}", imageUrl, e);
+        }
+    }
+
+    /**
+     * Parses a Cloudinary URL and returns the public_id (with folder, without extension).
+     * Example input:  https://res.cloudinary.com/mycloud/image/upload/v1234567890/parapharma/products/abc123.jpg
+     * Example output: parapharma/products/abc123
+     */
+    private String extractPublicId(String url) {
+        // Find the "/upload/" segment and take everything after it
+        int uploadIdx = url.indexOf("/upload/");
+        if (uploadIdx == -1) {
+            // Fallback: not a Cloudinary URL (e.g. old local path) — skip
+            log.warn("URL non-Cloudinary ignorée pour la suppression : {}", url);
+            return null;
+        }
+        String afterUpload = url.substring(uploadIdx + "/upload/".length());
+
+        // Strip version segment if present (e.g. "v1234567890/")
+        if (afterUpload.startsWith("v") && afterUpload.indexOf('/') > 1) {
+            afterUpload = afterUpload.substring(afterUpload.indexOf('/') + 1);
+        }
+
+        // Remove file extension
+        int dotIdx = afterUpload.lastIndexOf('.');
+        if (dotIdx != -1) {
+            afterUpload = afterUpload.substring(0, dotIdx);
+        }
+        return afterUpload;
     }
 }

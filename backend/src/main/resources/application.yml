@@ -7,8 +7,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 10MB
+      max-file-size: 10MB
+      max-request-size: 15MB
 
 ---
 # Development profile (H2)
@@ -47,11 +47,13 @@ app:
     secret: ParaPharmaMarocSecretKeyForJWTTokenGeneration2024MustBeLongEnoughForHS512
     expiration-ms: 86400000  # 24 hours
 
-  upload:
-    dir: ./uploads/images
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
 
 ---
-# Docker profile (PostgreSQL)
+# Docker / Render profile (PostgreSQL)
 spring:
   config:
     activate:
@@ -82,5 +84,8 @@ app:
     secret: ${JWT_SECRET:ParaPharmaMarocSecretKeyForJWTTokenGeneration2024MustBeLongEnoughForHS512}
     expiration-ms: ${JWT_EXPIRATION:86400000}
 
-  upload:
-    dir: /app/uploads/images
+cloudinary:
+  # Ces valeurs doivent être définies comme variables d'environnement sur Render
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

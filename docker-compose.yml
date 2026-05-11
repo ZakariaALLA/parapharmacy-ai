@@ -34,9 +34,10 @@ services:
       DB_PASSWORD: parapharma_secret_2024
       JWT_SECRET: YourSuperSecretKeyForJWT2024ParaPharmaMaroc256BitKey!!
       JWT_EXPIRATION: 86400000
-      APP_UPLOAD_DIR: /app/uploads/images
-    volumes:
-      - uploads_data:/app/uploads/images
+      # ↓ Ajoute tes credentials Cloudinary ici pour Docker local
+      CLOUDINARY_CLOUD_NAME: YOUR_CLOUD_NAME
+      CLOUDINARY_API_KEY: YOUR_API_KEY
+      CLOUDINARY_API_SECRET: YOUR_API_SECRET
     restart: unless-stopped
     develop:
       watch:
@@ -61,4 +62,3 @@ services:
 
 volumes:
   postgres_data:
-  uploads_data:
